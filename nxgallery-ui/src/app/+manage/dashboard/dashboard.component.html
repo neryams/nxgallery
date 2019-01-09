@@ -1,0 +1,10 @@
+<nxg-header></nxg-header>
+
+<input-file fileAccept="image/*" fileLimit="50" (acceptedFile)="upload($event)"></input-file>
+
+<section class="image-grid">
+  <!--<div class="progress-item" *ngFor="let item of uploadsInProgress">
+    {{ item.file.name }}
+  </div>-->
+  <nxg-gallery [images]="images" [progress]="uploadsInProgress" (updatedImages)="saveImagePositions($event)"></nxg-gallery>
+</section>

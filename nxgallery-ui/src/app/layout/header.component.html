@@ -1,0 +1,12 @@
+﻿<header class="header">
+  <h1>Gallery</h1>
+  <nav>
+    <span class="nav-group" *ngIf="!isAuthenticated">
+      <a *ngIf="!isAuthenticated" class="log-in" [routerLink]="['/manage/login']">Login</a>
+    </span>
+    <span class="nav-group" *ngIf="isAuthenticated">
+      <a [routerLink]="['/manage/dashboard']">Dashboard</a>
+      <a class="log-out" (click)="logout()">Logout</a>
+    </span>
+  </nav>
+</header>

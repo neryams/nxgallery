@@ -1,0 +1,9 @@
+@import '../mixin/positioning';
+
+nxg-root {
+  @include absolute(0);
+}
+
+nxg-main {
+  height: 100%;
+}

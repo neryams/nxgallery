@@ -1,0 +1,3 @@
+{
+  "typescript.tsdk": "${workspaceFolder}/nxgallery-api/node_modules/typescript/lib"
+}

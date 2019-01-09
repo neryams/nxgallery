@@ -1,0 +1,15 @@
+<div class="grid">
+  <div
+    infiniteScroll
+    [infiniteScrollDistance]="2"
+    [infiniteScrollThrottle]="50"
+    [infiniteScrollContainer]="'#scrollContainer'"
+    [fromRoot]="true"
+    (scrolled)="onScroll()"
+    [ngStyle]="{ height: (containerHeight) + 'px' }">
+      <div class="grid-item" *ngFor="let image of images" 
+        [ngStyle]="{ top: image.position.y + 'px', left: image.position.x + 'px' }">
+        <img [attr.src]="image.url" />
+      </div>
+  </div>
+</div>

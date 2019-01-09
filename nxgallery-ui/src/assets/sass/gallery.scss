@@ -1,0 +1,11 @@
+.grid {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.grid-item {
+  width: calc(33% - 10px);
+  position: relative;
+  background-color: #666;
+  display: block;
+}

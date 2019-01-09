@@ -1,0 +1,28 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch app.ts",
+      "protocol": "inspector",
+      "args": ["${workspaceFolder}/nxgallery-api/app.ts"],
+      "cwd": "${workspaceFolder}/nxgallery-api",
+      "runtimeArgs": ["-r", "${workspaceFolder}/nxgallery-api/node_modules/ts-node/register"],
+      "internalConsoleOptions": "openOnSessionStart"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch current file w/ ts-node",
+      "protocol": "inspector",
+      "args": ["${relativeFile}"],
+      "cwd": "${workspaceFolder}",
+      "runtimeArgs": ["-r", "${workspaceFolder}/nxgallery-api/node_modules/ts-node/register"],
+      "internalConsoleOptions": "openOnSessionStart"
+    }
+  ]
+}

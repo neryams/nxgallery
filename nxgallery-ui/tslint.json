@@ -1,0 +1,28 @@
+﻿{
+  "rulesDirectory": ["node_modules/codelyzer"],
+  "extends": ["angular-tslint-rules", "tslint-config-prettier"],
+  "rules": {
+    "await-promise": [true, "Nightmare"],
+    "no-implicit-dependencies": [true, "dev", ["~", "e2e-config"]],
+    "ordered-imports": [
+      true,
+      {
+        "import-sources-order": "case-insensitive",
+        "named-imports-order": "case-insensitive",
+        "grouped-imports": true
+      }
+    ],
+    "no-bitwise": false,
+    "templates-no-negated-async": false,
+    "i18n": false,
+    "no-forward-ref": false,
+    "no-template-call-expression": false,
+    "no-unused-css": false,
+    "template-conditional-complexity": false,
+    "template-cyclomatic-complexity": false,
+    "use-view-encapsulation": false,
+    "angular-whitespace": [true, "check-interpolation", "check-semicolon"],
+    "directive-selector": [true, "attribute", ["nxg", "routerLink"], "kebab-case"],
+    "component-selector": [true, "element", ["nxg", "i18n", "router"], "kebab-case"]
+  }
+}
