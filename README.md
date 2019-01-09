@@ -8,16 +8,16 @@ NXGallery is a next-generation gallery manager. It comes with a server module to
 
 ## To Build for deployment
 1. Clone or download the respository
-2. Set up configuration options inside `./config/env.ts`
-   `API_PORT` is the port the server will be running on 
-   `CLIENT_PORT` is the port the angular client will be served on (when running the compiled version; the dev build follows the rules in angular.json)
-   `MONGODB_PORT` is the port your MongoDB is running on (default is 27017)
-   `LOCAL_STORAGE` is where images will be uploaded relative to the api server code. This path should be publicly accessible.
-   `LOCAL_ORIGINAL_STORAGE` is where the original images will be uploaded relative to the api server code (for later retrieval, potentially printing, making new thumbnails, etc). **This path should not be publicly accessible**
-   `LOCAL_BASE_URL` is the public path that will be used to access the image thumbnails (the public path from d.)
-   `MAX_UPLOAD_SIZE` is the maximum number of megabytes an uploaded image can be
-   `IMAGE_SIZES` is an array of sizes that thumbnails will be generated for. This array can be any length, and the generated image paths will be stored in the database.
-   `JWT_SECRET` is **your** secret key for generating JWT tokens for user login into the maangement panel. You should generate a random hexadecimal UUID using https://www.random.org/bytes/ or something similar and use that.
+2. Set up configuration options inside `./config/env.ts`  
+   `API_PORT` is the port the server will be running on  
+   `CLIENT_PORT` is the port the angular client will be served on (when running the compiled version; the dev build follows the rules in angular.json)  
+   `MONGODB_PORT` is the port your MongoDB is running on (default is 27017)  
+   `LOCAL_STORAGE` is where images will be uploaded relative to the api server code. This path should be publicly accessible.  
+   `LOCAL_ORIGINAL_STORAGE` is where the original images will be uploaded relative to the api server code (for later retrieval, potentially printing, making new thumbnails, etc). **This path should not be publicly accessible**  
+   `LOCAL_BASE_URL` is the public path that will be used to access the image thumbnails (the public path from d.)  
+   `MAX_UPLOAD_SIZE` is the maximum number of megabytes an uploaded image can be  
+   `IMAGE_SIZES` is an array of sizes that thumbnails will be generated for. This array can be any length, and the generated image paths will be stored in the database.  
+   `JWT_SECRET` is **your** secret key for generating JWT tokens for user login into the maangement panel. You should generate a random hexadecimal UUID using https://www.random.org/bytes/ or something similar and use that.  
 3. Navigate to `./nxgallery-api` and run the following: 
    ```sh
    $ yarn install
