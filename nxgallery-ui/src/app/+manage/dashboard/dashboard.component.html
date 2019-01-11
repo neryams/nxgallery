@@ -1,6 +1,6 @@
 <nxg-header></nxg-header>
 
-<input-file fileAccept="image/*" fileLimit="50" (acceptedFile)="upload($event)"></input-file>
+<nxg-input-file class="file-input" fileAccept="image/*" fileLimit="50" (acceptedFile)="upload($event)"></nxg-input-file>
 
 <section class="image-grid">
   <!--<div class="progress-item" *ngFor="let item of uploadsInProgress">

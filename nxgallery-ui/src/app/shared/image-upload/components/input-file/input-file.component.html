@@ -3,7 +3,7 @@
     <div class="files-container">
 
         <ng-container *ngIf="false">
-            <ng-container *ngFor="let file of files; let i = index">
+            <ng-container *ngFor="let file of files; let i = index; trackBy: fileUnique">
                 <div class="file-container bounce-in">
                     <ng-container *ngTemplateOutlet="fileTemplate; context: { $implicit: file, index: i }"></ng-container>
                 </div>
