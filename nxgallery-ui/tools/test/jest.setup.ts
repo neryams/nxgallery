@@ -1,6 +1,7 @@
 // tslint:disable
 import * as hammerjs from 'hammerjs';
 import 'jest-preset-angular';
+declare var jest;
 
 const mock = () => {
   let storage = {};

@@ -1,4 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { InfiniteScrollModule } from 'ngx-infinite-scroll';
+import { ImageFrameworkTestingModule } from '~/app/framework/images/testing/image-testing.module';
 
 import { LandingComponent } from './landing.component';
 
@@ -8,6 +10,10 @@ describe('LandingComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
+      imports: [
+        ImageFrameworkTestingModule,
+        InfiniteScrollModule
+      ],
       declarations: [ LandingComponent ]
     })
     .compileComponents();

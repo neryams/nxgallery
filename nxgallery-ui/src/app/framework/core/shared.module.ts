@@ -4,8 +4,6 @@ import { FlexLayoutModule, LAYOUT_CONFIG } from '@angular/flex-layout';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { ImageService } from './../images/image.service';
-
 export const APP_LAYOUT_CONFIG = {
   addFlexToParent: true,
   addOrientationBps: false,
@@ -20,7 +18,6 @@ export const APP_LAYOUT_CONFIG = {
   imports: [CommonModule],
   exports: [CommonModule, FormsModule, FlexLayoutModule, TranslateModule],
   providers: [
-    ImageService,
     {
       provide: LAYOUT_CONFIG,
       useValue: APP_LAYOUT_CONFIG

@@ -1,3 +1,5 @@
 {
-  "typescript.tsdk": "${workspaceFolder}/nxgallery-api/node_modules/typescript/lib"
+  "typescript.tsdk": "${workspaceFolder}/nxgallery-api/node_modules/typescript/lib",
+  "jest.rootPath": "nxgallery-ui",
+  "jest.pathToJest": "yarn test"
 }
