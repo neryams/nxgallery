@@ -14,7 +14,7 @@ import { MOCK_AUTH_PATH } from './tokens';
   providers: [
     {
       provide: MOCK_AUTH_PATH,
-      useValue: '/api/authenticate'
+      useValue: '/api/users/authenticate'
     },
     {
       provide: AuthLoader,

@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 
 import { SharedModule } from '../framework/core';
+import { ImageFrameworkModule } from '../framework/images/image.module';
 
 import { LandingComponent } from './landing.component';
 
@@ -26,6 +27,7 @@ const routes = [
     CommonModule,
     RouterModule.forChild(routes),
     SharedModule,
+    ImageFrameworkModule,
     InfiniteScrollModule
   ]
 })

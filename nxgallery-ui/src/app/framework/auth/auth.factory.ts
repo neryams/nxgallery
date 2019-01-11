@@ -12,8 +12,8 @@ export function authFactory(): AuthLoader {
     },
     storage: localStorage,
     storageKey: STORAGE_KEY,
-    loginRoute: ['manage/login'],
-    defaultUrl: 'manage/dashboard'
+    loginRoute: ['/manage/login'],
+    defaultUrl: '/manage/dashboard'
   });
 }
 

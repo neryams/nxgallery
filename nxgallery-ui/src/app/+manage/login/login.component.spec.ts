@@ -19,12 +19,17 @@ const MOCK_ROUTES = [
     path: '',
     children: [
       {
-        path: '',
+        path: 'login',
         component: MockComponent
       },
       {
-        path: 'login',
-        component: MockComponent
+        path: 'manage',
+        children: [
+          {
+            path: 'dashboard',
+            component: MockComponent
+          }
+        ]
       }
     ]
   }
@@ -63,7 +68,9 @@ t.describe('login: LoginComponent', () => {
         fixture.detectChanges();
 
         auth.authenticate('valid', 'valid').subscribe(() => {
-          t.e(router.url).toEqual(`${auth.defaultUrl}/`);
+          setTimeout(() => {
+            t.e(router.url).toEqual(`${auth.defaultUrl}`);
+          }, 100);
         });
       })
     )

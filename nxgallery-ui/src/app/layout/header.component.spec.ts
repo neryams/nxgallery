@@ -64,7 +64,7 @@ t.describe('layout: HeaderComponent', () => {
     instance.isAuthenticated = true;
     fixture.detectChanges();
 
-    const logoutButton = fixture.debugElement.query(By.css('button.qa-header__logout'));
+    const logoutButton = fixture.debugElement.query(By.css('a.qa-header__logout'));
     logoutButton.triggerEventHandler('click', {});
 
     t.e(instance.isAuthenticated).toBeFalsy();

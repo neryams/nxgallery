@@ -1,12 +1,11 @@
-
 import { NgModule } from '@angular/core';
 import { MATERIAL_SANITY_CHECKS } from '@angular/material';
 import { RouterModule } from '@angular/router';
 import { MAX_UPLOAD_SIZE } from '~/../../config/env';
 import { SharedModule } from '~/app/framework/core';
-import { ImageService } from '~/app/framework/images';
 import { MaterialModule } from '~/app/framework/material';
 
+import { ImageFrameworkModule } from '../framework/images/image.module';
 import { LayoutModule } from '../layout/layout.module';
 import { GalleryModule } from '../shared/gallery/gallery.module';
 import { InputFileModule } from '../shared/image-upload/input-file.module';
@@ -28,7 +27,8 @@ const config: InputFileConfig = {
     MaterialModule,
     LayoutModule,
     InputFileModule.forRoot(config),
-    GalleryModule
+    GalleryModule,
+    ImageFrameworkModule
   ],
   declarations: [
     LoginComponent,
