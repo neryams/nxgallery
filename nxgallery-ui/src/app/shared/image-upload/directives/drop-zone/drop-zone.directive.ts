@@ -7,13 +7,13 @@ import {
     } from '@angular/core';
 
 @Directive({
-    selector: '[inputFileDropZone]'
+    selector: '[inputFileDropZone]' // tslint:disable-line
 })
 export class DropZoneDirective {
     @Input() disabled = false;
-    @Output() itemDragOver = new EventEmitter<any>();
-    @Output() itemDragLeave = new EventEmitter<any>();
-    @Output() itemDrop = new EventEmitter<any>();
+    @Output() readonly itemDragOver = new EventEmitter<any>();
+    @Output() readonly itemDragLeave = new EventEmitter<any>();
+    @Output() readonly itemDrop = new EventEmitter<any>();
 
     private isOver: boolean;
     // Prevent dragleave on children, could be better but it's cheap for better performance
@@ -21,7 +21,6 @@ export class DropZoneDirective {
 
     /**
      * Drag Over event handler.
-     * @param event
      */
     @HostListener('dragover', ['$event']) onDragOver(event: DragEvent): void {
         this.preventAndStopEventPropagation(event);
@@ -33,7 +32,6 @@ export class DropZoneDirective {
 
     /**
      * Drag Leave event handler.
-     * @param event
      */
     @HostListener('dragleave', ['$event']) onDragLeave(event: DragEvent): void {
         this.preventAndStopEventPropagation(event);
@@ -45,7 +43,6 @@ export class DropZoneDirective {
 
     /**
      * Drop event handler.
-     * @param event
      */
     @HostListener('drop', ['$event']) onDrop(event: any): void {
         if (!this.disabled && event instanceof DragEvent) {
@@ -61,7 +58,6 @@ export class DropZoneDirective {
 
     /**
      * Prevents and stops event propagration.
-     * @param event
      */
     private preventAndStopEventPropagation(event: Event): void {
         event.preventDefault();
@@ -70,14 +66,14 @@ export class DropZoneDirective {
 
     /**
      * Checks if the leave is not trigger by a children.
-     * @param event
      */
     private isTrueLeave(event: DragEvent): boolean {
         for (const c of this.whiteListClasses) {
-            if (event.fromElement != undefined && event.fromElement.className.indexOf(c) >= 0) {
+            if (event.fromElement !== undefined && event.fromElement.className.indexOf(c) >= 0) {
                 return false;
             }
         }
+
         return true;
     }
 }

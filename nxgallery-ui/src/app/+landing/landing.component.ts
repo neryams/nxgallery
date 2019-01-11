@@ -4,13 +4,15 @@ import { ImageService } from '../framework/images/image.service';
 
 const gridWidth = 340;
 
+interface DisplayImage { id: string; url: string; position: { x: number; y: number } }
+
 @Component({
   selector: 'nxg-landing',
   templateUrl: './landing.component.html',
   styleUrls: ['../../assets/sass/gallery.scss', './landing.component.scss']
 })
 export class LandingComponent implements OnInit {
-  images: Array<{ url: string, position: { x: number, y: number } }>;
+  images: Array<DisplayImage>;
   containerHeight: number;
   currPage: number;
 
@@ -29,6 +31,10 @@ export class LandingComponent implements OnInit {
     this.getImages(this.currPage);
   }
 
+  imageUUID(image: DisplayImage): string {
+    return image.id;
+  }
+
   private getImages(page = 1): void {
     this.imageService.getImages(page).subscribe(images => {
       this.images.push(...images.map(image => {
@@ -38,6 +44,7 @@ export class LandingComponent implements OnInit {
         }
 
         return {
+          id: image._id,
           url: image.imageUrls['600'],
           position: image.info.position
         }

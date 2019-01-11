@@ -7,7 +7,7 @@
     [fromRoot]="true"
     (scrolled)="onScroll()"
     [ngStyle]="{ height: (containerHeight) + 'px' }">
-      <div class="grid-item" *ngFor="let image of images" 
+      <div class="grid-item" *ngFor="let image of images; trackBy: imageUUID"
         [ngStyle]="{ top: image.position.y + 'px', left: image.position.x + 'px' }">
         <img [attr.src]="image.url" />
       </div>
