@@ -18,6 +18,8 @@ const { AppServerModuleNgFactory, LAZY_MODULE_MAP } = require('./server/main');
 
 const server = express();
 server.use(compression());
+server.use(express.json());
+server.use(express.urlencoded({ extended: true }));
 
 const PORT = process.env.PORT || CLIENT_PORT || 4000;
 const DIST_FOLDER = join(process.cwd(), 'dist');
@@ -32,40 +34,44 @@ server.engine('html', ngExpressEngine({
 server.set('view engine', 'html');
 server.set('views', join(DIST_FOLDER, 'browser'));
 
-server.use('/api/', function(req, res) {
-  var options = {
+server.use('/api/', (req, res) => {
+  const options = {
     port:   API_PORT,
     path:   '/api' + req.url,
     method: req.method,
     headers: req.headers
   };
-  // console.log(JSON.stringify(options));
 
-  var creq = http.request(options, function(cres) {
+  const proxyReq = http.request(options, function(resp) {
     // set encoding and header
-    cres.setEncoding('utf8');
-    res.writeHead(cres.statusCode);
+    resp.setEncoding('utf8');
+    res.writeHead(resp.statusCode);
 
     // wait for data
-    cres.on('data', function(chunk){
+    resp.on('data', function(chunk){
       res.write(chunk);
     });
 
-    cres.on('close', function(){
+    resp.on('close', function(){
       res.end();
     });
 
-    cres.on('end', function(){
+    resp.on('end', function(){
       res.end();
     });
 
-  }).on('error', function(e) {
+  });
+  
+  proxyReq.on('error', function(e) {
     console.log(e.message);
     res.writeHead(500);
     res.end();
   });
 
-  creq.end();
+  if (options.method === 'POST') {
+    proxyReq.write(JSON.stringify(req.body));
+  }
+  proxyReq.end();
 });
 
 server.use('/', express.static(join(DIST_FOLDER, 'browser'), {index: false}));
