@@ -1,6 +1,6 @@
 {
   "name": "nxgallery-api",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "app.ts\t",
   "description": "API for nxgallery, for storing images and metadata in the database",
   "author": "Raymon Ohmori <neryams@gmail.com>",

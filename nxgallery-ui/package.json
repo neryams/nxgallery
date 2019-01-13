@@ -1,15 +1,17 @@
 {
   "name": "nxgallery-ui",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "UI side for nxgallery, for managing the images and interfacing with the API",
   "repository": {
     "type": "git",
     "url": "https://github.com/ng-seed/universal.git"
   },
-  "contributors": [{
-    "name": "Raymon Ohmori",
-    "email": "neryams@gmail.com"
-  }],
+  "contributors": [
+    {
+      "name": "Raymon Ohmori",
+      "email": "neryams@gmail.com"
+    }
+  ],
   "license": "MIT",
   "homepage": "https://github.com/ng-seed/universal#readme",
   "scripts": {
