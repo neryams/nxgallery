@@ -1,0 +1,25 @@
+{
+  "name": "nxgallery",
+  "version": "0.1.1",
+  "description": "Container package for nxgallery",
+  "author": "Raymon Ohmori <neryams@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "contributors": [
+    {
+      "name": "Raymon Ohmori",
+      "email": "neryams@gmail.com"
+    }
+  ],
+  "scripts": {
+    "build": "cd ./nxgallery-api && yarn build && cd ../nxgallery-ui && yarn build:ssr",
+    "build:prod": "cd ./nxgallery-api && yarn build && cd ../nxgallery-ui && yarn build:ssr:prod",
+    "run:prod": "npx forever start ./nxgallery-api/dist/nxgallery-api/app.js && npx forever start ./nxgallery-ui/dist/nxgallery-ui/server.js",
+    "status": "npx forever list",
+    "stop:prod": "npx forever stop ./nxgallery-api/dist/nxgallery-api/app.js && npx forever stop ./nxgallery-ui/dist/nxgallery-ui/server.js",
+    "postinstall": "cd ./nxgallery-api && yarn install && cd ../nxgallery-ui && yarn install"
+  },
+  "dependencies": {
+    "forever": "^0.15.3"
+  }
+}

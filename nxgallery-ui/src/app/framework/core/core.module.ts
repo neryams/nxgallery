@@ -1,12 +1,12 @@
 import { HttpClient } from '@angular/common/http';
-import { forwardRef, Injector, ModuleWithProviders, NgModule, Optional, SkipSelf } from '@angular/core';
+import { ModuleWithProviders, NgModule, Optional, SkipSelf } from '@angular/core';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreModule } from '@ngrx/store';
 import { CacheModule } from '@ngx-cache/core';
-import { ConfigModule, ConfigService } from '@ngx-config/core';
-import { ConfigHttpLoader } from '@ngx-config/http-loader';
+import { ConfigModule, ConfigService, ConfigStaticLoader } from '@ngx-config/core';
 import { MetaModule, MetaStaticLoader } from '@ngx-meta/core';
 import { TranslateService } from '@ngx-translate/core';
+import { appConfig } from '~/environments/environment';
 
 import { BaseContainerComponent } from './base-container.component';
 import { BaseComponent } from './base.component';
@@ -16,11 +16,7 @@ import { WindowService } from './window.service';
 
 const CORE_PROVIDERS: Array<any> = [ConsoleService, LogService, WindowService];
 
-export const configFactory = (injector: Injector) => {
-  const http = forwardRef(() => injector.get(HttpClient)) as any;
-
-  return new ConfigHttpLoader(http, './assets/config.local.json');
-};
+export const configFactory = () => new ConfigStaticLoader(appConfig);
 
 export const metaFactory = (config: ConfigService, translate: TranslateService) =>
   new MetaStaticLoader({

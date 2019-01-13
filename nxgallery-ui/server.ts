@@ -22,22 +22,23 @@ server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
 
 const PORT = process.env.PORT || CLIENT_PORT || 4000;
-const DIST_FOLDER = join(process.cwd(), 'dist');
+const DIST_FOLDER = join(__dirname, '..');
 
-server.engine('html', ngExpressEngine({
-  bootstrap: AppServerModuleNgFactory,
-  providers: [
-    provideModuleMap(LAZY_MODULE_MAP)
-  ]
-}));
+server.engine(
+  'html',
+  ngExpressEngine({
+    bootstrap: AppServerModuleNgFactory,
+    providers: [provideModuleMap(LAZY_MODULE_MAP)]
+  })
+);
 
 server.set('view engine', 'html');
 server.set('views', join(DIST_FOLDER, 'browser'));
 
 server.use('/api/', (req, res) => {
   const options = {
-    port:   API_PORT,
-    path:   '/api' + req.url,
+    port: API_PORT,
+    path: '/api' + req.url,
     method: req.method,
     headers: req.headers
   };
@@ -48,20 +49,19 @@ server.use('/api/', (req, res) => {
     res.writeHead(resp.statusCode);
 
     // wait for data
-    resp.on('data', function(chunk){
+    resp.on('data', function(chunk) {
       res.write(chunk);
     });
 
-    resp.on('close', function(){
+    resp.on('close', function() {
       res.end();
     });
 
-    resp.on('end', function(){
+    resp.on('end', function() {
       res.end();
     });
-
   });
-  
+
   proxyReq.on('error', function(e) {
     console.log(e.message);
     res.writeHead(500);
@@ -74,7 +74,7 @@ server.use('/api/', (req, res) => {
   proxyReq.end();
 });
 
-server.use('/', express.static(join(DIST_FOLDER, 'browser'), {index: false}));
+server.use('/', express.static(join(DIST_FOLDER, 'browser'), { index: false }));
 
 server.get('*', (req, res) => {
   res.render(join(DIST_FOLDER, 'browser', 'index.html'), {
