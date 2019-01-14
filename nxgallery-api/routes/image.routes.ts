@@ -31,7 +31,9 @@ class ImageRoutes {
     );
 
     this.router.post('/updatePositions', jwt({secret: JWT_SECRET}),
-      (req: express.Request, res: express.Response) => imageController.updatePositions(req, res),
+      (req: express.Request, res: express.Response) => {
+        return imageController.updatePositions(req, res)
+      },
     );
 
     this.router.post('/upload', jwt({secret: JWT_SECRET}),
