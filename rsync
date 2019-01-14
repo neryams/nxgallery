@@ -1,4 +1,6 @@
 + /
++ /yarn.lock
++ /package.json
 + /nxgallery-*
 + /nxgallery-*/yarn.lock
 + /nxgallery-*/package.json
