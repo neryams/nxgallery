@@ -20,7 +20,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(join(__dirname, 'dist')));
-app.use('/images', express.static(join(__dirname, config.get('LOCAL_STORAGE'))));
+let imagePath = join(__dirname, config.get('LOCAL_STORAGE')).replace('~', '../');
+app.use('/images', express.static(imagePath));
 
 app.use('/api/image', imageRouter);
 app.use('/api/users', usersRouter);

@@ -5,8 +5,11 @@ export default {
   CLIENT_PORT: 4000,
   MONGODB_PORT: 27017,
 
-  LOCAL_STORAGE: './uploads/images',
-  LOCAL_ORIGINAL_STORAGE: './uploads/original',
+  // Relative to the folder the API server is running in.
+  // Prefixing with a ~ will make the path relative to the outermost project root
+  LOCAL_STORAGE: '~/uploads/images',
+  LOCAL_ORIGINAL_STORAGE: '~/uploads/original',
+  
   LOCAL_UPLOADS_BASE_URL: `http:\/\/localhost:${API_PORT}/images/`,
   MAX_UPLOAD_SIZE: 20 * 1024 * 1024,
   IMAGE_SIZES: [

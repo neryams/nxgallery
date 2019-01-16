@@ -3,7 +3,7 @@
 # compiled output
 /.cache
 */dist
-*/uploads/**
+uploads
 /docs
 
 # dependencies

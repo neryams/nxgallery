@@ -78,8 +78,8 @@ export class ImageStorage implements multer.StorageEngine {
     });
       
     // set the upload path
-    this.uploadPath = resolve(__dirname, '..', config.get('LOCAL_STORAGE'));
-    this.uploadPathOriginal = resolve(__dirname, '..', config.get('LOCAL_ORIGINAL_STORAGE'));
+    this.uploadPath = resolve(__dirname, '..', config.get('LOCAL_STORAGE').replace('~', '../'))
+    this.uploadPathOriginal = resolve(__dirname, '..', config.get('LOCAL_ORIGINAL_STORAGE').replace('~', '../'));
     
     if (this.options.storage == 'local') {
       // if upload path does not exist, create the upload path structure
