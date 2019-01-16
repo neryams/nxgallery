@@ -10,7 +10,7 @@ import * as express from 'express';
 import * as proxy from 'http-proxy-middleware';
 import { join } from 'path';
 
-import { CLIENT_PORT, API_PORT } from './../config/env';
+import { environmentConfig } from './src/environments/environment';
 
 enableProdMode();
 
@@ -19,7 +19,7 @@ const { AppServerModuleNgFactory, LAZY_MODULE_MAP } = require('./server/main');
 const server = express();
 server.use(compression());
 
-const PORT = process.env.PORT || CLIENT_PORT || 4000;
+const PORT = process.env.PORT || environmentConfig.CLIENT_PORT || 4000;
 const DIST_FOLDER = join(__dirname, '..');
 
 server.engine(
@@ -33,7 +33,8 @@ server.engine(
 server.set('view engine', 'html');
 server.set('views', join(DIST_FOLDER, 'browser'));
 
-server.use('/api', proxy({ target: `http://localhost:${API_PORT}` }));
+server.use('/images', proxy({ target: `http://localhost:${environmentConfig.API_PORT}` }));
+server.use('/api', proxy({ target: `http://localhost:${environmentConfig.API_PORT}` }));
 
 server.use('/', express.static(join(DIST_FOLDER, 'browser'), { index: false }));
 

@@ -1,6 +1,7 @@
-import { defaultsDeep } from 'lodash/fp';
+// tslint:disable-next-line
+import environmentConfig from '../../../config/default';
 
-import { baseAppConfig } from './app.config.base';
+import { appConfig } from './environment.default';
 
 export const environment = {
   production: false,
@@ -8,4 +9,4 @@ export const environment = {
   hasStoreDevTools: false
 };
 
-export const appConfig: typeof baseAppConfig = defaultsDeep(baseAppConfig, {});
+export { appConfig, environmentConfig };

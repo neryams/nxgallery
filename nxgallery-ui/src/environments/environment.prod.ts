@@ -1,6 +1,12 @@
-import { defaultsDeep } from 'lodash/fp';
+// tslint:disable-next-line
+import { defaultConfig, prodConfig } from '../../../config';
 
-import { baseAppConfig } from './app.config.base';
+import { appConfig } from './environment.default';
+
+const environmentConfig = { ...defaultConfig, ...prodConfig };
+
+appConfig.backend.baseServerUrl = `http://localhost:${environmentConfig.CLIENT_PORT}`;
+appConfig.backend.baseBrowserUrl = '.';
 
 export const environment = {
   production: true,
@@ -8,8 +14,4 @@ export const environment = {
   hasStoreDevTools: false
 };
 
-export const appConfig: typeof baseAppConfig = defaultsDeep(baseAppConfig, {
-  backend: {
-    baseBrowserUrl: '.'
-  }
-});
+export { appConfig, environmentConfig };

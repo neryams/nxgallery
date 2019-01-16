@@ -6,12 +6,12 @@
       "noImplicitAny": false,
       "baseUrl": ".",
       "module": "commonjs",
-      "target": "es2015"
+      "target": "es2016"
   },
   "lib": [
     "es2017"
   ],
-  "explude": [
+  "exclude": [
     "node_modules"
   ]
 }

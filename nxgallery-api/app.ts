@@ -4,10 +4,11 @@ import * as express from 'express';
 import { join } from 'path';
 import * as cookieParser from 'cookie-parser';
 import * as logger from 'morgan';
-import { LOCAL_STORAGE, JWT_SECRET } from '../config/env';
 
 import { imageRouter } from './routes/image.routes';
 import { usersRouter } from './routes/users.routes';
+
+import * as config from 'config';
 
 const app = express();
 
@@ -19,7 +20,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(join(__dirname, 'dist')));
-app.use('/images', express.static(join(__dirname, LOCAL_STORAGE)));
+app.use('/images', express.static(join(__dirname, config.get('LOCAL_STORAGE'))));
 
 app.use('/api/image', imageRouter);
 app.use('/api/users', usersRouter);

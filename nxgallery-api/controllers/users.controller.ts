@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
+import * as config from 'config';
 
 import { UsersDatabase } from './../models/users.model';
 import { User, ErrorCodes } from './../../shared';
-import { JWT_SECRET } from './../../config/env';
 
 export interface UserAuthInput {
   username: string,
@@ -45,7 +45,7 @@ export class UsersController {
   authenticate(req: Request, res: Response) {
     const body: UserAuthInput = req.body;
     this.usersDatabase.authenticate(body).then((response: User) => {
-      let token = jwt.sign(response, JWT_SECRET, { expiresIn: '7d' });
+      let token = jwt.sign(response, config.get('JWT_SECRET'), { expiresIn: '7d' });
       res.json({ token });
     }, (err) => {
       if (err.message === ErrorCodes.notAuthenticated.code) {

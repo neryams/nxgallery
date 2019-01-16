@@ -3,13 +3,13 @@ import { Document } from 'mongoose';
 import { ImageDatabase } from './../models/image.model';
 import { FileStreamOutputResult } from './../helpers/ImageStorage';
 import { Request, Response } from 'express';
+import * as config from 'config';
 
 import * as _ from 'lodash';
 import * as multer from 'multer';
 import { resolve } from 'url';
 
 import { ImageStorage } from '../helpers/ImageStorage';
-import { MAX_UPLOAD_SIZE, IMAGE_SIZES } from './../../config/env';
 import { ImageData } from './../../shared';
 
 // setup a new instance of the AvatarStorage engine 
@@ -20,7 +20,7 @@ const storage = new ImageStorage({
 
 const limits = {
   files: 1, // allow only 1 file per request
-  fileSize: MAX_UPLOAD_SIZE,
+  fileSize: config.get('MAX_UPLOAD_SIZE'),
 };
 
 // setup multer
@@ -75,7 +75,7 @@ export class ImageController {
     const matches: string[] = filename.match(/^(.+?)_.+?\.(.+)$/i);
 
     if (matches && matches.length > 0) {
-     _.each(IMAGE_SIZES, (size) => {
+     _.each(config.get('IMAGE_SIZES'), (size) => {
         let sizeFilename = matches[1] + '_' + size + '.' + matches[2];
         let url = resolve(file.baseUrl, sizeFilename);
   

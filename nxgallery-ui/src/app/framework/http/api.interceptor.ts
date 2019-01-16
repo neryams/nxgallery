@@ -3,8 +3,8 @@ import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse } fr
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { environmentConfig } from '~/environments/environment';
 
-import { CLIENT_PORT } from './../../../../../config/env';
 import { getCurrentToken, LOGIN_URL } from './../auth/auth.factory';
 
 @Injectable()

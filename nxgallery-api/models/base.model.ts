@@ -1,7 +1,7 @@
-import { MONGODB_PORT } from './../../config/env';
 import { connect } from 'mongoose';
-
-connect('mongodb://localhost' + (MONGODB_PORT ? `:${MONGODB_PORT}` : '') + '/nxgallery', { useNewUrlParser: true }).then(() => {
+import * as config from 'config';
+    
+connect('mongodb://localhost' + (config.get('MONGODB_PORT') ? `:${config.get('MONGODB_PORT')}` : '') + '/nxgallery', { useNewUrlParser: true }).then(() => {
   console.log('Connection Successful');
 }, (err: any) => {
   console.error('Connection Failed: ', err);
@@ -9,6 +9,5 @@ connect('mongodb://localhost' + (MONGODB_PORT ? `:${MONGODB_PORT}` : '') + '/nxg
 
 export class BaseDatabase {
   constructor() {
-
   }
 }

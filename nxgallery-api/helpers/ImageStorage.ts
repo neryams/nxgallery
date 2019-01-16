@@ -7,12 +7,9 @@ import * as streamifier from 'streamifier';
 import { pseudoRandomBytes, createHash } from 'crypto';
 import { existsSync, createWriteStream, unlink, WriteStream } from 'fs';
 import { resolve, join, basename } from 'path';
+import * as config from 'config';
 
-import { LOCAL_STORAGE, LOCAL_BASE_URL, IMAGE_SIZES, LOCAL_ORIGINAL_STORAGE } from '../../config/env';
 import { ImageInfo } from '../../shared';
-
-export const UPLOAD_PATH = resolve(__dirname, '..', LOCAL_STORAGE);
-export const UPLOAD_PATH_ORIGNAL = resolve(__dirname, '..', LOCAL_ORIGINAL_STORAGE);
 
 export interface FileStreamOutputResult {
   destination: string;
@@ -81,8 +78,8 @@ export class ImageStorage implements multer.StorageEngine {
     });
       
     // set the upload path
-    this.uploadPath = UPLOAD_PATH;
-    this.uploadPathOriginal = UPLOAD_PATH_ORIGNAL;
+    this.uploadPath = resolve(__dirname, '..', config.get('LOCAL_STORAGE'));
+    this.uploadPathOriginal = resolve(__dirname, '..', config.get('LOCAL_ORIGINAL_STORAGE'));
     
     if (this.options.storage == 'local') {
       // if upload path does not exist, create the upload path structure
@@ -91,7 +88,7 @@ export class ImageStorage implements multer.StorageEngine {
     }
   }
 
-  _handleFile(req: Express.Request, file: any, cb: (error?: any, info?: Partial<Express.Multer.File>) => void) {
+  _handleFile(req: Express.Request, file: any, cb: (error?: any, info?: Partial<FileStreamOutputResult>) => void) {
     // create a writable stream using concat-stream that will
     // concatenate all the buffers written to it and pass the
     // complete buffer to a callback fn
@@ -128,7 +125,7 @@ export class ImageStorage implements multer.StorageEngine {
     matches = !!pathsplit.pop().match(/^(.+?)_.+?\.(.+)$/i);
 
     if (matches) {
-      paths = _.map(IMAGE_SIZES, function(size) {
+      paths = _.map(config.get('IMAGE_SIZES'), function(size) {
         return pathsplit.join('/') + '/' + (matches[1] + '_' + size + '.' + matches[2]);
       });
     }
@@ -173,7 +170,7 @@ export class ImageStorage implements multer.StorageEngine {
     output.on('finish', () => {
       cb(null, {
         destination: this.uploadPath,
-        baseUrl: LOCAL_BASE_URL,
+        baseUrl: config.get('LOCAL_UPLOADS_BASE_URL'),
         filename: basename(filepath),
         storage: this.options.storage,
         imageInfo: imageInfo
@@ -248,7 +245,7 @@ export class ImageStorage implements multer.StorageEngine {
     
     let filepathParts = filename.split('.');
     // map through the responsive sizes and push them to the batch
-    batch = _.map(IMAGE_SIZES, (size) => {
+    batch = _.map(config.get('IMAGE_SIZES'), (size) => {
       let image: Jimp = null;
       
       // create the complete filepath and create a writable stream for it

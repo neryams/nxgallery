@@ -13,11 +13,14 @@
     }
   ],
   "scripts": {
-    "start": "npx ts-node app.ts",
-    "build": "tsc"
+    "start": "NODE_CONFIG_DIR=../config npx ts-node app.ts",
+    "start:prod": "NODE_ENV=production NODE_CONFIG_DIR=../config npx ts-node app.ts",
+    "build": "tsc",
+    "run:prod": "NODE_CONFIG_DIR=../config NODE_ENV=production node ./dist/nxgallery-api/app.js"
   },
   "dependencies": {
     "concat-stream": "^2.0.0",
+    "config": "^3.0.1",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
     "ejs": "~2.5.7",
@@ -35,6 +38,7 @@
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.1",
+    "@types/express": "^4.16.0",
     "@types/express-jwt": "^0.0.40",
     "@types/http-errors": "^1.6.1",
     "@types/jimp": "^0.2.28",

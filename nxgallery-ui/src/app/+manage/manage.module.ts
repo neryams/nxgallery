@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { MATERIAL_SANITY_CHECKS } from '@angular/material';
 import { RouterModule } from '@angular/router';
-import { MAX_UPLOAD_SIZE } from '~/../../config/env';
 import { SharedModule } from '~/app/framework/core';
 import { MaterialModule } from '~/app/framework/material';
+import { environmentConfig } from '~/environments/environment';
 
 import { ImageFrameworkModule } from '../framework/images/image.module';
 import { LayoutModule } from '../layout/layout.module';
@@ -17,7 +17,7 @@ import { ManageComponent } from './manage.component';
 import { routes } from './manage.routes';
 
 const config: InputFileConfig = {
-  fileLimit: MAX_UPLOAD_SIZE
+  fileLimit: environmentConfig.MAX_UPLOAD_SIZE
 };
 
 @NgModule({

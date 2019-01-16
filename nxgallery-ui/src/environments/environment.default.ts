@@ -1,6 +1,4 @@
-import { CLIENT_PORT } from './../../../config/env';
-
-export const baseAppConfig = {
+export const appConfig = {
   system: {
     applicationName: 'APP_NAME',
     applicationUrl: 'http://ng-seed.fulls1z3.com'
@@ -51,6 +49,6 @@ export const baseAppConfig = {
   },
   backend: {
     baseBrowserUrl: 'http://localhost:5200',
-    baseServerUrl: `http://localhost:${CLIENT_PORT}`
+    baseServerUrl: 'http://localhost:4000'
   }
 };

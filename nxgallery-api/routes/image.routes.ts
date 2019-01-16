@@ -1,8 +1,8 @@
 import * as express from 'express';
 import * as jwt from 'express-jwt';
 import { imageController, fileHandler } from '../controllers/image.controller';
+import * as config from 'config';
 
-import { JWT_SECRET } from './../../config/env';
 
 class ImageRoutes {
   public router: express.Router = express.Router();
@@ -26,17 +26,17 @@ class ImageRoutes {
 
     // Secured Routes
 
-    this.router.get('/getAll', jwt({secret: JWT_SECRET}),
+    this.router.get('/getAll', jwt({secret: config.get('JWT_SECRET')}),
       (req: express.Request, res: express.Response) => imageController.getImages(req, res).all()
     );
 
-    this.router.post('/updatePositions', jwt({secret: JWT_SECRET}),
+    this.router.post('/updatePositions', jwt({secret: config.get('JWT_SECRET')}),
       (req: express.Request, res: express.Response) => {
         return imageController.updatePositions(req, res)
       },
     );
 
-    this.router.post('/upload', jwt({secret: JWT_SECRET}),
+    this.router.post('/upload', jwt({secret: config.get('JWT_SECRET')}),
       (req: express.Request, res: express.Response) => {
         fileHandlerUploader(req, res, (err) => {
           if(err) {

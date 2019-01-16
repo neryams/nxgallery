@@ -14,7 +14,7 @@ NXGallery is a next-generation gallery manager. It comes with a server module to
    `MONGODB_PORT` is the port your MongoDB is running on (default is 27017)  
    `LOCAL_STORAGE` is where images will be uploaded relative to the api server code. This path should be publicly accessible.  
    `LOCAL_ORIGINAL_STORAGE` is where the original images will be uploaded relative to the api server code (for later retrieval, potentially printing, making new thumbnails, etc). **This path should not be publicly accessible**  
-   `LOCAL_BASE_URL` is the public path that will be used to access the image thumbnails (the public path from d.)  
+   `LOCAL_UPLOADS_BASE_URL` is the public path that will be used to access the image thumbnails (the public path from d.)  
    `MAX_UPLOAD_SIZE` is the maximum number of megabytes an uploaded image can be  
    `IMAGE_SIZES` is an array of sizes that thumbnails will be generated for. This array can be any length, and the generated image paths will be stored in the database.  
    `JWT_SECRET` is **your** secret key for generating JWT tokens for user login into the maangement panel. You should generate a random hexadecimal UUID using https://www.random.org/bytes/ or something similar and use that.  
@@ -45,13 +45,14 @@ Then on the server, just run
 yarn install --production
 yarn run:prod
 ```
+NODE_ENV should be set to production. Running `yarn run:prod` will set it automatically for that local script but you will need to set it manually if the apps are run manually; otherwise the configuration files will be loaded incorrectly.
 
 ## For development
 1. Fork and clone the repository
 2. Set up environments config as in deployment
 3. `yarn install` in both directories
-4. `yarn start` in `nxgallery-api` to run server
-5. `yarn start` in `nxgallery-ui` to run the client  
+4. `yarn start` (`yarn start:prod` for testing production settings) in `nxgallery-api` to run server
+5. `yarn start` (or `yarn start:prod`) in `nxgallery-ui` to run the client  
    Note: If you change the `API_PORT` config, you need to update the path to the local development api server for the dev proxy inside `nxgallery-ui/proxy/proxy.conf.json`
 
 * To run unit tests, run `yarn test` 
