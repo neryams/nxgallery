@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+      "outDir": "./dist/",
+      "sourceMap": false,
+      "moduleResolution": "node",
+      "noImplicitAny": false,
+      "baseUrl": ".",
+      "module": "commonjs",
+      "target": "es2016"
+  },
+  "lib": [
+    "es2017"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
