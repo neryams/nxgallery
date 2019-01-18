@@ -1,6 +1,9 @@
 # NXGallery
 NXGallery is a next-generation gallery manager. It comes with a server module to resize image thumbnails and maintain the database, and a front end module to serve the images and offer a management dashboard.
 
+Demo is accessible at https://demo.nxgallery.com/  
+Dashboard login credentials for testing uploads are `test` / `password`; the database will be cleared regularly.
+
 ## System Requirements
 - Node.js (Tested with node version 8.9.3)
 - Yarn (or NPM)
