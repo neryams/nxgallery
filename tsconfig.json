@@ -3,10 +3,14 @@
       "outDir": "./dist/",
       "sourceMap": false,
       "moduleResolution": "node",
+      "experimentalDecorators": true,
       "noImplicitAny": false,
       "baseUrl": ".",
       "module": "commonjs",
-      "target": "es2016"
+      "target": "es2016",
+      "paths": {
+        "config": ["./nxgallery-api/node_modules/config"]
+      }
   },
   "lib": [
     "es2017"
