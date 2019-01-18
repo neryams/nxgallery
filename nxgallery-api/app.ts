@@ -4,11 +4,11 @@ import * as express from 'express';
 import { join } from 'path';
 import * as cookieParser from 'cookie-parser';
 import * as logger from 'morgan';
+import * as config from 'config';
+import { BASE_DIR, getAbsolutePath } from './helpers/PathFixer';
 
 import { imageRouter } from './routes/image.routes';
 import { usersRouter } from './routes/users.routes';
-
-import * as config from 'config';
 
 const app = express();
 
@@ -20,8 +20,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(join(__dirname, 'dist')));
-let imagePath = join(__dirname, config.get('LOCAL_STORAGE')).replace('~', '../');
-app.use('/images', express.static(imagePath));
+
+app.use('/images', express.static(getAbsolutePath(config.get('LOCAL_STORAGE'))));
 
 app.use('/api/image', imageRouter);
 app.use('/api/users', usersRouter);

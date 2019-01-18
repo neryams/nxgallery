@@ -5,8 +5,8 @@ export default {
   CLIENT_PORT: 4000,
   MONGODB_PORT: 27017,
 
-  // Relative to the folder the API server is running in.
-  // Prefixing with a ~ will make the path relative to the outermost project root
+  // Relative to the cwd path.
+  // Prefixing with a ~ will make the path relative to the project root (the parent folder of this config file's folder)
   LOCAL_STORAGE: '~/uploads/images',
   LOCAL_ORIGINAL_STORAGE: '~/uploads/original',
   
