@@ -1,0 +1,11 @@
++ /
++ /yarn.lock
++ /package.json
++ /config
++ /config/**
++ /nxgallery-*
++ /nxgallery-*/yarn.lock
++ /nxgallery-*/package.json
++ /nxgallery-*/dist
++ /nxgallery-*/dist/**
+- *

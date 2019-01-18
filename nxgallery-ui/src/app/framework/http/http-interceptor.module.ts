@@ -22,7 +22,7 @@ import { UniversalInterceptor } from './universal.interceptor';
     {
       provide: HTTP_INTERCEPTORS,
       useClass: ApiInterceptor,
-      deps: [Injector],
+      deps: [PLATFORM_ID],
       multi: true
     }
   ]

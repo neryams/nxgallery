@@ -1,8 +1,8 @@
 import * as express from 'express';
 import * as jwt from 'express-jwt';
 import { usersController } from '../controllers/users.controller';
+import * as config from 'config';
 
-import { JWT_SECRET } from './../../config/env';
 
 class UsersRoutes {
   public router: express.Router = express.Router();
@@ -12,8 +12,8 @@ class UsersRoutes {
   }
 
   private config(): void {
-    this.router.get('/currentUser', jwt({secret: JWT_SECRET}), (req: express.Request, res: express.Response) =>
-      res.json(req.user)
+    this.router.get('/currentUser', jwt({secret: config.get('JWT_SECRET')}), (req: express.Request, res: express.Response) =>
+      res.json(req['user'])
     );
 
     this.router.post('/setup', (req: express.Request, res: express.Response) =>

@@ -6,7 +6,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { ChangeLanguageComponent } from './change-language.component';
 import { I18NService } from './i18n.service';
 
-export const translateFactory = (http: HttpClient) => new TranslateHttpLoader(http, './assets/i18n/');
+export const translateFactory = (http: HttpClient) => new TranslateHttpLoader(http, '{baseUrl}/assets/i18n/');
 
 @NgModule({
   imports: [TranslateModule.forRoot()],

@@ -3,10 +3,11 @@
 # compiled output
 /.cache
 */dist
-*/uploads/**
+uploads
 /docs
 
 # dependencies
+node_modules/
 */node_modules/
 mongodb/
 

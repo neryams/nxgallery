@@ -9,6 +9,7 @@
       "request": "launch",
       "name": "Launch app.ts",
       "protocol": "inspector",
+      "env": {"NODE_CONFIG_DIR": "../config"},
       "args": ["${workspaceFolder}/nxgallery-api/app.ts"],
       "cwd": "${workspaceFolder}/nxgallery-api",
       "runtimeArgs": ["-r", "${workspaceFolder}/nxgallery-api/node_modules/ts-node/register"],
@@ -17,10 +18,11 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch current file w/ ts-node",
+      "name": "Launch PROD app.ts",
       "protocol": "inspector",
-      "args": ["${relativeFile}"],
-      "cwd": "${workspaceFolder}",
+      "env": {"NODE_ENV": "production", "NODE_CONFIG_DIR": "../config"},
+      "args": ["${workspaceFolder}/nxgallery-api/app.ts"],
+      "cwd": "${workspaceFolder}/nxgallery-api",
       "runtimeArgs": ["-r", "${workspaceFolder}/nxgallery-api/node_modules/ts-node/register"],
       "internalConsoleOptions": "openOnSessionStart"
     }
