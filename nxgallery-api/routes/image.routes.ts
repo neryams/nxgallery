@@ -1,6 +1,6 @@
 import * as express from 'express';
 import * as jwt from 'express-jwt';
-import { imageController, fileHandler } from '../controllers/image.controller';
+import { imageController } from '../controllers/image.controller';
 import * as config from 'config';
 
 
@@ -12,7 +12,6 @@ class ImageRoutes {
   }
 
   private init(): void {
-    let fileHandlerUploader = fileHandler.single('image');
 
     // Public Routes
 
@@ -31,21 +30,11 @@ class ImageRoutes {
     );
 
     this.router.post('/updatePositions', jwt({secret: config.get('JWT_SECRET')}),
-      (req: express.Request, res: express.Response) => {
-        return imageController.updatePositions(req, res)
-      },
+      (req: express.Request, res: express.Response) => imageController.updatePositions(req, res),
     );
 
     this.router.post('/upload', jwt({secret: config.get('JWT_SECRET')}),
-      (req: express.Request, res: express.Response) => {
-        fileHandlerUploader(req, res, (err) => {
-          if(err) {
-            res.status(500).send({ message: 'Could not generate images', err: err });
-          } else {
-            imageController.upload(req, res);
-          }
-        });
-      },
+      (req: express.Request, res: express.Response) => imageController.upload(req, res)
     );
 
   }

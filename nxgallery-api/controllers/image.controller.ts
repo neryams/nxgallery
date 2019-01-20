@@ -7,7 +7,6 @@ import * as config from 'config';
 
 import * as _ from 'lodash';
 import * as multer from 'multer';
-import { resolve } from 'url';
 
 import { ImageStorage } from '../helpers/ImageStorage';
 import { ImageData } from './../../shared';
@@ -68,35 +67,30 @@ export class ImageController {
   }
 
   upload(req: Request, res: Response) {
-    let files: { [key:number]: string } = {};
-    const file = <Express.Multer.File & FileStreamOutputResult> req.file;
+    let fileHandlerUploader = fileHandler.single('image');
 
-    const filename = file.filename;
-    const matches: string[] = filename.match(/^(.+?)_.+?\.(.+)$/i);
-
-    if (matches && matches.length > 0) {
-     _.each(config.get('IMAGE_SIZES'), (size) => {
-        let sizeFilename = matches[1] + '_' + size + '.' + matches[2];
-        let url = resolve(file.baseUrl, sizeFilename);
-  
-        files[size] = url;
-      });
-    }
-
-    let response: ImageData = {
-      title: filename,
-      imageUrls: files,
-      uploaded: new Date().valueOf(),
-      // default exif is unix epoch seconds
-      created: file.imageInfo.created ? (file.imageInfo.created * 1000) : null,
-      info: file.imageInfo
-    }
-
-    this.imageDatabase.saveImageData(response).then((result) => {
-      res.json(result.toJSON());
-    }, (err: any) => {
-      res.status(500).send({ message: 'Could not save image data', err: err });
-    })
+    fileHandlerUploader(req, res, (err) => {
+      if(err) {
+        res.status(500).send({ message: 'Could not generate images', err: err });
+      } else {
+        const file = <Express.Multer.File & FileStreamOutputResult> req.file;
+    
+        let response: ImageData = {
+          title: file.filename,
+          imageUrls: file.thumbFilePaths,
+          uploaded: new Date().valueOf(),
+          // default exif is unix epoch seconds
+          created: file.imageInfo.created ? (file.imageInfo.created * 1000) : null,
+          info: file.imageInfo
+        }
+    
+        this.imageDatabase.saveImageData(response).then((result) => {
+          res.json(result.toJSON());
+        }, (err: any) => {
+          res.status(500).send({ message: 'Could not save image data', err: err });
+        });
+      }
+    });
   }
 
   private getImageHandler(res: Response, query: Promise<IImageDocument[]>) {
