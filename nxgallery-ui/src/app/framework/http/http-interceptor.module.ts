@@ -1,5 +1,6 @@
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { Injector, NgModule, PLATFORM_ID } from '@angular/core';
+import { AuthService } from '@ngx-auth/core';
 
 import { ApiInterceptor } from './api.interceptor';
 import { BaseUrlInterceptor } from './base-url.interceptor';
@@ -22,7 +23,7 @@ import { UniversalInterceptor } from './universal.interceptor';
     {
       provide: HTTP_INTERCEPTORS,
       useClass: ApiInterceptor,
-      deps: [PLATFORM_ID],
+      deps: [AuthService],
       multi: true
     }
   ]
