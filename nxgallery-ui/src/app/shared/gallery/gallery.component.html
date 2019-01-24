@@ -2,5 +2,11 @@
   <div class="grid-item" [attr.id]="image.id" *nxgGalleryItems="let image of currentImages; gridInst: gridInst">
     <div class="spacer" [ngStyle]="{ 'padding-top': (100 / image.aspect) + '%' }"></div>
     <img *ngIf="image.url" [attr.src]="image.url" />
+    <div class="loading-overlay" *ngIf="image.progress && image.progress.value >= 100">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    </div>
+    <div class="loading-overlay" *ngIf="image.progress && image.progress.value < 100">
+      <mat-progress-bar mode="determinate" [value]="image.progress | async"></mat-progress-bar>
+    </div>
   </div>
 </div>

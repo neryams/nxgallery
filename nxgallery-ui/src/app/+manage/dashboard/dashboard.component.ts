@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import * as uuidV4 from 'uuid/v4';
 import { ImagePosition, LoadingImage } from '~/app/shared/gallery/gallery.component';
 
@@ -9,6 +10,7 @@ import { IImageDocument } from './../../../../../shared/interfaces/imageData';
 
 export interface UploadProgress extends LoadingImage {
   inputFile: InputFile;
+  progress: BehaviorSubject<number>;
   newPosition?: { x: number, y: number };
 }
 
@@ -37,37 +39,17 @@ export class DashboardComponent implements OnInit {
   upload(inputFile: InputFile): void {
     const fr = new FileReader;
 
-    // fr.onload = () => { // file is loaded
-    //   Jimp.read(fr.result as Buffer).then((preview: Jimp) => {
-    //     if(this.uploadsInProgress.length === 0) {
-    //       this.executeNextUpload();
-    //     }
-    //     const aspect = preview.bitmap.width / preview.bitmap.height;
-    //     this.uploadsInProgress.push({
-    //       aspect,
-    //       inputFile,
-    //       // preview: previewResult
-    //     });
-    //     // preview.resize(300, Jimp.AUTO);
-    //     // preview.getBase64Async(Jimp.MIME_JPEG).then((previewResult) => {
-    //     //   this.uploadsInProgress.push({
-    //     //     aspect,
-    //     //     inputFile,
-    //     //     preview: previewResult
-    //     //   });
-    //     // });
-    //   });
-    // };
-
     fr.onload = () => { // file is loaded
         const img = new Image;
         img.onload = () => {
           const aspect = img.width / img.height;
-          this.uploadsInProgress = this.uploadsInProgress.concat([{
+          const progress = new BehaviorSubject<number>(-1);
+          this.uploadsInProgress = [ ...this.uploadsInProgress, {
             uid: uuidV4(),
             aspect,
+            progress,
             inputFile
-          }]);
+          }];
 
           if(this.uploadsInProgress.length === 1) {
             this.executeNextUpload();
@@ -124,23 +106,29 @@ export class DashboardComponent implements OnInit {
   }
 
   private executeNextUpload(): void {
+    const loader = this.uploadsInProgress[0];
+
     this.imageService.uploadImage(this.uploadsInProgress[0].inputFile.file).subscribe((result) => {
-      const loader = this.uploadsInProgress.shift();
-      const dbId = result._id;
-      this.images.unshift(result);
-      this.images[0].dbId = dbId; 
-      this.images[0]._id = loader.uid; // Maintain position of loaded image, just swap the info
-      if (loader.newPosition !== undefined) {
-        this.imageService.saveImagePositions([{
-          _id: dbId,
-          position: loader.newPosition
-        }]).subscribe();
-      }
-
-      this.ref.detectChanges();
-
-      if(this.uploadsInProgress.length > 0) {
-        this.executeNextUpload();
+      if (typeof result === 'number') {
+        loader.progress.next(result);
+      } else {
+        this.uploadsInProgress.shift();
+        const dbId = result._id;
+        this.images.unshift(result);
+        this.images[0].dbId = dbId; 
+        this.images[0]._id = loader.uid; // Maintain position of loaded image, just swap the info
+        if (loader.newPosition !== undefined) {
+          this.imageService.saveImagePositions([{
+            _id: dbId,
+            position: loader.newPosition
+          }]).subscribe();
+        }
+  
+        this.ref.detectChanges();
+  
+        if(this.uploadsInProgress.length > 0) {
+          this.executeNextUpload();
+        }
       }
     });
   }

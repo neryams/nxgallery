@@ -1,24 +1,27 @@
-import { AfterViewInit, Component, DoCheck, ElementRef, EventEmitter, Input, Output, ViewChild  } from '@angular/core';
+import { AfterViewInit, Component, DoCheck, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import * as Packery from 'packery';
+import { Observable } from 'rxjs';
 
 import { IImageDocument } from './../../../../../shared/interfaces/imageData';
 
 export interface LoadingImage {
   uid: string;
   aspect: number;
+  progress: Observable<number>;
   preview?: string;
 }
 
 export interface ImagePosition {
-  _id: string,
-  position: { x: number, y: number }
+  _id: string;
+  position: { x: number; y: number };
 }
 
 export interface GalleryItem {
-  url?: string,
-  id: string,
-  aspect: number,
-  newItem: boolean
+  url?: string;
+  id: string;
+  aspect: number;
+  newItem: boolean;
+  progress?: Observable<number>;
 }
 
 @Component({
@@ -47,21 +50,26 @@ export class GalleryComponent implements AfterViewInit, DoCheck {
   }
 
   ngDoCheck(): void {
-    if(this.imagesLength !== this.images.length || this.progressLength !== this.progress.length) {
+    if (this.imagesLength !== this.images.length || this.progressLength !== this.progress.length) {
       this.currentImages = this.images.map((imageData: IImageDocument) => ({
         url: imageData.imageUrls['600'],
         id: imageData._id,
         aspect: imageData.info.aspect,
         newItem: false
       }));
-  
-      if(this.progress) {
+
+      if (this.progress) {
         const currentProgress: Array<LoadingImage> = this.progress;
-        this.currentImages.unshift(...currentProgress.map((imageData: LoadingImage) => ({
-          id: imageData.uid,
-          aspect: imageData.aspect,
-          newItem: true
-        })).reverse())
+        this.currentImages.unshift(
+          ...currentProgress
+            .map((imageData: LoadingImage) => ({
+              id: imageData.uid,
+              aspect: imageData.aspect,
+              newItem: true,
+              progress: imageData.progress
+            }))
+            .reverse()
+        );
       }
     }
   }
@@ -71,9 +79,9 @@ export class GalleryComponent implements AfterViewInit, DoCheck {
       gutter: 10
     });
 
-    this.gridInst.on('layoutComplete', ( laidOutItems: Array<any> ) => {
+    this.gridInst.on('layoutComplete', (laidOutItems: Array<any>) => {
       let itemsChanged = false;
-      laidOutItems.forEach((item: { position: ImagePosition['position'], element: HTMLElement }) => {
+      laidOutItems.forEach((item: { position: ImagePosition['position']; element: HTMLElement }) => {
         this.updatedImagesCollection.set(item.element.id, {
           _id: item.element.id,
           position: { x: item.position.x, y: item.position.y } // Have to clone to prevent references updating on their own
@@ -86,11 +94,10 @@ export class GalleryComponent implements AfterViewInit, DoCheck {
           clearTimeout(this.outputDebounce);
         }
         this.outputDebounce = setTimeout(() => {
-          this.updatedImages.emit( Array.from(this.updatedImagesCollection.values()) );
+          this.updatedImages.emit(Array.from(this.updatedImagesCollection.values()));
           this.updatedImagesCollection.clear();
         }, 500);
       }
-    })
+    });
   }
-
 }
