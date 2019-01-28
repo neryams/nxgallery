@@ -1,5 +1,5 @@
-
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MockImageService } from '~/app/framework/images/testing/mocks/image-service.mock';
 import { t } from '~/app/framework/testing';
 
@@ -14,17 +14,17 @@ describe('GalleryComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ GalleryItemsDirective, GalleryComponent ]
-    })
-    .compileComponents();
+      declarations: [GalleryItemsDirective, GalleryComponent],
+      imports: [MatProgressBarModule]
+    }).compileComponents();
   }));
 
-  beforeEach((next) => {
+  beforeEach(next => {
     fixture = TestBed.createComponent(GalleryComponent);
     component = fixture.componentInstance;
     const imageService = new MockImageService();
 
-    imageService.getAllImages().subscribe((images) => {
+    imageService.getAllImages().subscribe(images => {
       component.images = images;
       component.progress = [];
       // Squash the ngAfterViewInit because Packery won't work correctly. Just check the current images instead (TODO add more tests)
@@ -32,7 +32,7 @@ describe('GalleryComponent', () => {
       fixture.detectChanges();
       fixture.whenRenderingDone().then(() => {
         next();
-      })
+      });
     });
   });
 
