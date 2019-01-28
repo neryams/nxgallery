@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import * as uuidV4 from 'uuid/v4';
 import { ImagePosition, LoadingImage } from '~/app/shared/gallery/gallery.component';
 
@@ -9,6 +10,7 @@ import { IImageDocument } from './../../../../../shared/interfaces/imageData';
 
 export interface UploadProgress extends LoadingImage {
   inputFile: InputFile;
+  progress: BehaviorSubject<number>;
   newPosition?: { x: number, y: number };
 }
 
@@ -18,6 +20,8 @@ export interface UploadProgress extends LoadingImage {
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
+  @ViewChild('imageGrid') imageGrid: ElementRef;
+
   uploadsInProgress: Array<UploadProgress>;
   images: Array<IImageDocument & { dbId?: string }>;
   checkChangesTimeout: number;
@@ -37,37 +41,17 @@ export class DashboardComponent implements OnInit {
   upload(inputFile: InputFile): void {
     const fr = new FileReader;
 
-    // fr.onload = () => { // file is loaded
-    //   Jimp.read(fr.result as Buffer).then((preview: Jimp) => {
-    //     if(this.uploadsInProgress.length === 0) {
-    //       this.executeNextUpload();
-    //     }
-    //     const aspect = preview.bitmap.width / preview.bitmap.height;
-    //     this.uploadsInProgress.push({
-    //       aspect,
-    //       inputFile,
-    //       // preview: previewResult
-    //     });
-    //     // preview.resize(300, Jimp.AUTO);
-    //     // preview.getBase64Async(Jimp.MIME_JPEG).then((previewResult) => {
-    //     //   this.uploadsInProgress.push({
-    //     //     aspect,
-    //     //     inputFile,
-    //     //     preview: previewResult
-    //     //   });
-    //     // });
-    //   });
-    // };
-
     fr.onload = () => { // file is loaded
         const img = new Image;
         img.onload = () => {
           const aspect = img.width / img.height;
-          this.uploadsInProgress = this.uploadsInProgress.concat([{
+          const progress = new BehaviorSubject<number>(-1);
+          this.uploadsInProgress = [ ...this.uploadsInProgress, {
             uid: uuidV4(),
             aspect,
+            progress,
             inputFile
-          }]);
+          }];
 
           if(this.uploadsInProgress.length === 1) {
             this.executeNextUpload();
@@ -82,27 +66,34 @@ export class DashboardComponent implements OnInit {
   }
 
   saveImagePositions(imagePositions: Array<ImagePosition>): void {
+    const containerBoundingBox = this.imageGrid.nativeElement.getBoundingClientRect();
     // Collect all the updated images and save the new positions to the databse
     const payload = imagePositions
-      .map(newImageInfo => {
-        let imagePayload: ImagePosition;
+      .map<ImagePosition>(newImageInfo => {
         const savedImage = this.images.find(image => image._id === newImageInfo._id);
+        // Store x/y position as ratio of width so we can scale the image positions programattically
+        // and responsively for smaller screens
+        const newImagePosition = {
+          x: newImageInfo.position.x / containerBoundingBox.width,
+          y: newImageInfo.position.y / containerBoundingBox.width
+        }
+        
         if (savedImage && 
-          (!savedImage.info.position || savedImage.info.position.x !== newImageInfo.position.x ||
-          savedImage.info.position.y !== newImageInfo.position.y)
+          (!savedImage.info.position || 
+            savedImage.info.position.x !== newImagePosition.x ||
+            savedImage.info.position.y !== newImagePosition.y
+          )
         ) {
-          imagePayload = {
-            _id: savedImage.dbId || savedImage._id,
-            position: newImageInfo.position
-          };
-
           // Also update the saved image position so we don't re-update
-          savedImage.info.position = newImageInfo.position;
+          savedImage.info.position = newImagePosition;
+
+          return {
+            _id: savedImage.dbId || savedImage._id,
+            position: newImagePosition
+          };
         } else {
           return undefined;
         }
-
-        return imagePayload;
       })
       .filter(image => image !== undefined);
 
@@ -124,23 +115,29 @@ export class DashboardComponent implements OnInit {
   }
 
   private executeNextUpload(): void {
+    const loader = this.uploadsInProgress[0];
+
     this.imageService.uploadImage(this.uploadsInProgress[0].inputFile.file).subscribe((result) => {
-      const loader = this.uploadsInProgress.shift();
-      const dbId = result._id;
-      this.images.unshift(result);
-      this.images[0].dbId = dbId; 
-      this.images[0]._id = loader.uid; // Maintain position of loaded image, just swap the info
-      if (loader.newPosition !== undefined) {
-        this.imageService.saveImagePositions([{
-          _id: dbId,
-          position: loader.newPosition
-        }]).subscribe();
-      }
-
-      this.ref.detectChanges();
-
-      if(this.uploadsInProgress.length > 0) {
-        this.executeNextUpload();
+      if (typeof result === 'number') {
+        loader.progress.next(result);
+      } else {
+        this.uploadsInProgress.shift();
+        const dbId = result._id;
+        this.images.unshift(result);
+        this.images[0].dbId = dbId; 
+        this.images[0]._id = loader.uid; // Maintain position of loaded image, just swap the info
+        if (loader.newPosition !== undefined) {
+          this.imageService.saveImagePositions([{
+            _id: dbId,
+            position: loader.newPosition
+          }]).subscribe();
+        }
+  
+        this.ref.detectChanges();
+  
+        if(this.uploadsInProgress.length > 0) {
+          this.executeNextUpload();
+        }
       }
     });
   }

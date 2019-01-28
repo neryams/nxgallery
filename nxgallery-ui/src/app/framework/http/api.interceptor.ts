@@ -1,15 +1,14 @@
-import { isPlatformServer } from '@angular/common';
-import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse } from '@angular/common/http';
-import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { AuthService } from '@ngx-auth/core';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { environmentConfig } from '~/environments/environment';
+import { map, tap } from 'rxjs/operators';
 
 import { getCurrentToken, LOGIN_URL } from './../auth/auth.factory';
 
 @Injectable()
 export class ApiInterceptor implements HttpInterceptor {
-  constructor(@Inject(PLATFORM_ID) private readonly platformId: any) {}
+  constructor(private readonly auth: AuthService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     if (req.url === LOGIN_URL && req.method === 'POST') {
@@ -34,7 +33,23 @@ export class ApiInterceptor implements HttpInterceptor {
         }
       });
 
-      return next.handle(updatedRequest);
+      return next.handle(updatedRequest).pipe(
+        tap(
+          (event: HttpEvent<any>) => {
+            // console.log(event);
+          },
+          (err: any) => {
+            if (err instanceof HttpErrorResponse && err.url) {
+              if (err.status === 401) {
+                this.auth.invalidate();
+              }
+              if (err.status < 100 || err.status >= 500) {
+                // probably can't access api, add an error page route here
+              }
+            }
+          }
+        )
+      );
     } else {
       return next.handle(req);
     }

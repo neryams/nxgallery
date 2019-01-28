@@ -62,11 +62,9 @@ NODE_ENV should be set to production. Running `yarn run:prod` will set it automa
 * To run e2e tests, run `yarn e2e`
 
 ## New Features to add! (rough order of priority)
-- Speed up image conversion, try https://github.com/lovell/sharp
-- Responsive thumbnail resolution
 - Dragging images to reorder in dashboard
-- Add tags to image database with fulltext search
 - Fullscreen lightbox on view
+- Add tags to image database with fulltext search
 - Add captions to images
 - Add album functionality, album ids to images
 - Optionally integrate with AWS, Google Cloud, Azure, etc, adding platform deployment keys and info to the config

@@ -1,3 +1,9 @@
+@import '~src/assets/sass/mixin/gallery';
+
+.image-grid {
+  @include grid();
+}
+
 .file-input {
   position: absolute;
 }

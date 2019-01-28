@@ -3,15 +3,17 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { ConfigService } from '@ngx-config/core';
 import { configureTestSuite } from 'ng-bullet';
+import { AuthTestingModule } from '~/app/framework/auth/testing';
 import { CoreTestingModule } from '~/app/framework/core/testing';
 import { t } from '~/app/framework/testing';
 
+import { RouterTestingModule } from './../router/testing/router-testing.module';
 import { ApiInterceptor } from './api.interceptor';
 import { MockService } from './testing';
 
 configureTestSuite(() => {
   TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule, CoreTestingModule.withOptions()],
+    imports: [HttpClientTestingModule, CoreTestingModule.withOptions(), RouterTestingModule.withRoutes([]), AuthTestingModule],
     providers: [
       {
         provide: MockService,
@@ -28,7 +30,7 @@ configureTestSuite(() => {
   });
 });
 
-t.describe('BaseUrlInterceptor', () => {
+t.describe('ApiInterceptor', () => {
   t.it(
     'should build without a problem',
     t.inject([ApiInterceptor], (interceptor: ApiInterceptor) => {
