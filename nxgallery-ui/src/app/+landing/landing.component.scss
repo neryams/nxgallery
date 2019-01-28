@@ -1,10 +1,19 @@
+@import '~src/assets/sass/mixin/gallery';
+
 .grid {
-  position: relative;
+  @include grid();
+  padding-left: $gutter-size;
+
+  > * {
+    position: relative;
+  }
 }
 
 .grid-item {
+  @include grid-item();
+
   position: absolute;
-  
+
   img {
     width: 100%;
     display: block;

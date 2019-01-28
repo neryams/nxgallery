@@ -1,10 +1,12 @@
-.grid {
+$gutter-size: 10px;
+
+@mixin grid() {
   max-width: 1000px;
   margin: 0 auto;
 }
 
-.grid-item {
-  width: calc(33% - 10px);
+@mixin grid-item() {
+  width: calc(33% - #{$gutter-size});
   position: relative;
   background-color: #e4e4e4;
   display: block;

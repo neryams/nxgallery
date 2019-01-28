@@ -11,7 +11,7 @@ export const routes = [
       {
         path: '',
         loadChildren: './+landing/landing.module#LandingModule'
-      },
+      }
     ],
     canActivateChild: [MetaGuard],
     data: {

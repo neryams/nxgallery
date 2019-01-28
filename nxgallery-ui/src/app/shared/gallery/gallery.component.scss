@@ -1,4 +1,8 @@
+@import '~src/assets/sass/mixin/gallery';
+
 .grid-item {
+  @include grid-item();
+
   img {
     position: absolute;
     height: 100%;

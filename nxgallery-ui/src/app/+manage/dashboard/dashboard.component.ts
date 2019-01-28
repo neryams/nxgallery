@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import * as uuidV4 from 'uuid/v4';
 import { ImagePosition, LoadingImage } from '~/app/shared/gallery/gallery.component';
@@ -20,6 +20,8 @@ export interface UploadProgress extends LoadingImage {
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
+  @ViewChild('imageGrid') imageGrid: ElementRef;
+
   uploadsInProgress: Array<UploadProgress>;
   images: Array<IImageDocument & { dbId?: string }>;
   checkChangesTimeout: number;
@@ -64,27 +66,34 @@ export class DashboardComponent implements OnInit {
   }
 
   saveImagePositions(imagePositions: Array<ImagePosition>): void {
+    const containerBoundingBox = this.imageGrid.nativeElement.getBoundingClientRect();
     // Collect all the updated images and save the new positions to the databse
     const payload = imagePositions
-      .map(newImageInfo => {
-        let imagePayload: ImagePosition;
+      .map<ImagePosition>(newImageInfo => {
         const savedImage = this.images.find(image => image._id === newImageInfo._id);
+        // Store x/y position as ratio of width so we can scale the image positions programattically
+        // and responsively for smaller screens
+        const newImagePosition = {
+          x: newImageInfo.position.x / containerBoundingBox.width,
+          y: newImageInfo.position.y / containerBoundingBox.width
+        }
+        
         if (savedImage && 
-          (!savedImage.info.position || savedImage.info.position.x !== newImageInfo.position.x ||
-          savedImage.info.position.y !== newImageInfo.position.y)
+          (!savedImage.info.position || 
+            savedImage.info.position.x !== newImagePosition.x ||
+            savedImage.info.position.y !== newImagePosition.y
+          )
         ) {
-          imagePayload = {
-            _id: savedImage.dbId || savedImage._id,
-            position: newImageInfo.position
-          };
-
           // Also update the saved image position so we don't re-update
-          savedImage.info.position = newImageInfo.position;
+          savedImage.info.position = newImagePosition;
+
+          return {
+            _id: savedImage.dbId || savedImage._id,
+            position: newImagePosition
+          };
         } else {
           return undefined;
         }
-
-        return imagePayload;
       })
       .filter(image => image !== undefined);
 

@@ -27,7 +27,7 @@ export interface GalleryItem {
 @Component({
   selector: 'nxg-gallery',
   templateUrl: './gallery.component.html',
-  styleUrls: ['../../../assets/sass/gallery.scss', './gallery.component.scss']
+  styleUrls: ['./gallery.component.scss']
 })
 export class GalleryComponent implements AfterViewInit, DoCheck {
   @Input() images: Array<IImageDocument>;

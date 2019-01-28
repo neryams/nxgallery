@@ -24,7 +24,7 @@ import { AppModule, REQ_KEY } from './app.module';
     ]),
     AuthModule.forRoot({
       provide: AuthLoader,
-      useFactory: (authFactory)
+      useFactory: authFactory
     }),
     CoreModule.forRoot([
       {
