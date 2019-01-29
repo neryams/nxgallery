@@ -44,10 +44,13 @@ export class LandingComponent implements OnInit {
     this.containerHeight = 0;
     this.currPage = 1;
     this.images = [];
+    this.galleryWidth = 800;
   }
 
   ngOnInit(): void {
-    this.galleryWidth = this.imageGrid.nativeElement.getBoundingClientRect().width;
+    if (isPlatformBrowser(this.platformId)) {
+      this.galleryWidth = this.imageGrid.nativeElement.getBoundingClientRect().width;
+    }
     this.getImages(this.currPage);
   }
 

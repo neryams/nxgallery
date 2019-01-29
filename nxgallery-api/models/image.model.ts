@@ -63,9 +63,12 @@ export class ImageDatabase extends BaseDatabase {
     return this.getImages({ sortOrder: 'desc' }, pageSize, index);
   }
 
-  saveImagePositions(data: Array<{ _id: string, position: { x: number, y: number } }>) {
+  saveImagePositions(data: Array<{ _id: string, sortOrder: number, position: { x: number, y: number } }>) {
     return data.map(image => {
-      return Image.updateOne({ _id: image._id}, { $set: { 'info.position': image.position }}).exec();
+      return Image.updateOne({ _id: image._id}, { $set: {
+        'info.position': image.position,
+        'sortOrder': image.sortOrder
+      }}).exec();
     })
   }
 

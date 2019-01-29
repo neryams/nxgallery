@@ -69,7 +69,7 @@ export class DashboardComponent implements OnInit {
     const containerBoundingBox = this.imageGrid.nativeElement.getBoundingClientRect();
     // Collect all the updated images and save the new positions to the databse
     const payload = imagePositions
-      .map<ImagePosition>(newImageInfo => {
+      .map<ImagePosition>((newImageInfo: ImagePosition) => {
         const savedImage = this.images.find(image => image._id === newImageInfo._id);
         // Store x/y position as ratio of width so we can scale the image positions programattically
         // and responsively for smaller screens
@@ -78,8 +78,9 @@ export class DashboardComponent implements OnInit {
           y: newImageInfo.position.y / containerBoundingBox.width
         }
         
-        if (savedImage && 
-          (!savedImage.info.position || 
+        if (savedImage &&
+          (!savedImage.info.position ||
+            savedImage.sortOrder !== newImageInfo.sortOrder ||
             savedImage.info.position.x !== newImagePosition.x ||
             savedImage.info.position.y !== newImagePosition.y
           )
@@ -89,6 +90,7 @@ export class DashboardComponent implements OnInit {
 
           return {
             _id: savedImage.dbId || savedImage._id,
+            sortOrder: newImageInfo.sortOrder,
             position: newImagePosition
           };
         } else {

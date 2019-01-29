@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, DoCheck, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import * as Packery from 'packery';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { debounceTime, map, tap } from 'rxjs/operators';
 
 import { IImageDocument } from './../../../../../shared/interfaces/imageData';
 
@@ -13,6 +14,7 @@ export interface LoadingImage {
 
 export interface ImagePosition {
   _id: string;
+  sortOrder: number;
   position: { x: number; y: number };
 }
 
@@ -22,6 +24,12 @@ export interface GalleryItem {
   aspect: number;
   newItem: boolean;
   progress?: Observable<number>;
+}
+
+// The packery types definition is messed up (types for old version) so we just define the real properties we use here
+interface PackeryItemMock {
+  position: ImagePosition['position'];
+  element: HTMLElement;
 }
 
 @Component({
@@ -37,16 +45,40 @@ export class GalleryComponent implements AfterViewInit, DoCheck {
 
   @Output() readonly updatedImages = new EventEmitter();
   updatedImagesCollection: Map<string, ImagePosition>;
-  outputDebounce: any;
+  imagesChangedSubject = new Subject<Array<ImagePosition>>();
 
   progressLength: number;
   imagesLength: number;
-
   currentImages: Array<GalleryItem>;
   gridInst: any;
 
   constructor() {
     this.updatedImagesCollection = new Map();
+
+    this.imagesChangedSubject
+      .pipe(
+        tap(imagePositions => imagePositions.forEach(imagePosition => this.updatedImagesCollection.set(imagePosition._id, imagePosition))),
+        debounceTime(1000),
+        map(imagePositions => {
+          const result = Array.from(this.updatedImagesCollection.values());
+
+          result.forEach(
+            item =>
+              (item.sortOrder =
+                result.length -
+                this.gridInst.items.findIndex(
+                  (gridItem: PackeryItemMock) => gridItem.position.x === item.position.x && gridItem.position.y === item.position.y
+                ) -
+                1)
+          );
+
+          return result.sort((a, b) => b.sortOrder - a.sortOrder);
+        })
+      )
+      .subscribe(imagePositions => {
+        this.updatedImages.emit(imagePositions);
+        this.updatedImagesCollection.clear();
+      });
   }
 
   ngDoCheck(): void {
@@ -75,29 +107,27 @@ export class GalleryComponent implements AfterViewInit, DoCheck {
   }
 
   ngAfterViewInit(): void {
+    const gridElement: HTMLElement = this.gridElem.nativeElement;
+    const gridItemElements = gridElement.querySelectorAll('.grid-item');
+
     this.gridInst = new Packery(this.gridElem.nativeElement, {
       gutter: 10
     });
 
-    this.gridInst.on('layoutComplete', (laidOutItems: Array<any>) => {
-      let itemsChanged = false;
-      laidOutItems.forEach((item: { position: ImagePosition['position']; element: HTMLElement }) => {
-        this.updatedImagesCollection.set(item.element.id, {
-          _id: item.element.id,
-          position: { x: item.position.x, y: item.position.y } // Have to clone to prevent references updating on their own
-        });
-        itemsChanged = true;
-      });
-
-      if (itemsChanged) {
-        if (this.outputDebounce) {
-          clearTimeout(this.outputDebounce);
-        }
-        this.outputDebounce = setTimeout(() => {
-          this.updatedImages.emit(Array.from(this.updatedImagesCollection.values()));
-          this.updatedImagesCollection.clear();
-        }, 500);
-      }
+    this.gridInst.on('layoutComplete', (laidOutItems: Array<PackeryItemMock>) => {
+      this.imagesChangedSubject.next(laidOutItems.map(item => this.packeryItemToImagePosition(item)));
     });
+
+    this.gridInst.on('dragItemPositioned', (item: PackeryItemMock) => {
+      this.imagesChangedSubject.next([this.packeryItemToImagePosition(item)]);
+    });
+  }
+
+  private packeryItemToImagePosition(item: PackeryItemMock): ImagePosition {
+    return {
+      _id: item.element.id,
+      sortOrder: 0,
+      position: { ...item.position } // Have to clone to prevent references updating on their own
+    };
   }
 }
