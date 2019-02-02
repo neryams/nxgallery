@@ -6,5 +6,6 @@
   <!--<div class="progress-item" *ngFor="let item of uploadsInProgress">
     {{ item.file.name }}
   </div>-->
-  <nxg-gallery [images]="images" [progress]="uploadsInProgress" (updatedImages)="saveImagePositions($event)"></nxg-gallery>
+  <nxg-gallery [images]="images" [progress]="uploadsInProgress" 
+    (movedImages)="saveImagePositions($event)" (updatedImage)="saveImageInfo($event)"></nxg-gallery>
 </section>

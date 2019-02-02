@@ -10,9 +10,18 @@ import { GalleryItem } from './gallery.component';
 export class GalleryItemsDirective implements OnChanges {
   @Input() nxgGalleryItemsOf: Array<GalleryItem>;
   @Input() nxgGalleryItemsGridInst: any;
+  @Input('nxgGalleryItemsDraggable')
+  set nxgGalleryItemsDraggable(draggable: boolean) {
+    if (!draggable) {
+      this.dragHandlersMap.forEach(dragHandlers => dragHandlers.forEach(draggie => draggie.disable()));
+    } else {
+      this.dragHandlersMap.forEach(dragHandlers => dragHandlers.forEach(draggie => draggie.enable()));
+    }
+  }
 
   private _items: Array<GalleryItem>;
-  private readonly map: Map<string, EmbeddedViewRef<any>> = new Map<string, EmbeddedViewRef<any>>();
+  private readonly viewRefsMap: Map<string, EmbeddedViewRef<any>> = new Map<string, EmbeddedViewRef<any>>();
+  private readonly dragHandlersMap: Map<string, Array<any>> = new Map<string, Array<any>>();
 
   private scrollingBy: number;
 
@@ -41,34 +50,38 @@ export class GalleryItemsDirective implements OnChanges {
           this.viewContainerRef.insert(viewRef, 0);
           setTimeout(() => {
             this.nxgGalleryItemsGridInst.prepended(viewRef.rootNodes);
-            this.initDraggable(viewRef.rootNodes);
+            this.initDraggable(item.id, viewRef.rootNodes);
           });
         } else {
           this.viewContainerRef.insert(viewRef);
           setTimeout(() => {
             this.nxgGalleryItemsGridInst.appended(viewRef.rootNodes);
-            this.initDraggable(viewRef.rootNodes);
+            this.initDraggable(item.id, viewRef.rootNodes);
           });
         }
-        this.map.set(item.id, viewRef);
+        this.viewRefsMap.set(item.id, viewRef);
       });
       updatedItems.forEach(item => {
-        this.map.get(item.id).context.$implicit = item;
+        this.viewRefsMap.get(item.id).context.$implicit = item;
       });
       removedItems.forEach(item => {
         // this.viewContainerRef.remove(this.templateRef);
+        // draggie.destroy()
       });
 
       this._items = galleryItems;
     }
   }
 
-  initDraggable(nodes: Array<HTMLElement>): void {
+  initDraggable(id: string, nodes: Array<HTMLElement>): void {
     if (isPlatformBrowser(this.platformId)) {
       // Run dragging outside of angular for drag performance
       this.zone.runOutsideAngular(() => {
+        const dragHandlers: Array<any> = [];
+
         nodes.forEach(node => {
           const draggie = new Draggabilly(node);
+          dragHandlers.push(draggie);
 
           // If the user drags to a window edge, scroll the window to allow placing the image lower
           draggie.on('dragMove', (event: MouseEvent) => {
@@ -90,6 +103,8 @@ export class GalleryItemsDirective implements OnChanges {
           });
           this.nxgGalleryItemsGridInst.bindDraggabillyEvents(draggie);
         });
+
+        this.dragHandlersMap.set(id, dragHandlers);
       });
     }
   }

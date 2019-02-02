@@ -22,7 +22,9 @@ const imageSchema = new Schema({
   sortOrder: Number,
   uploaded: Date,
   created: Date,
+  tags: [String],
   info: {
+    caption: String,
     aspect: Number,
     position: {
       x: Number,
@@ -70,6 +72,12 @@ export class ImageDatabase extends BaseDatabase {
         'sortOrder': image.sortOrder
       }}).exec();
     })
+  }
+
+  saveImageInfo(_id: string, { caption }: { caption: string}) {
+    return Image.updateOne({ _id: _id}, { $set: {
+      'info.caption': caption
+    }}).exec();
   }
 
   saveImageData(data: ImageData) {

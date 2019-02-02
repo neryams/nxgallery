@@ -20,7 +20,11 @@ export class ImageService {
   }
 
   saveImagePositions(data: Array<{ _id: string; position: { x: number; y: number } }>): Observable<boolean> {
-    return this.http.post<boolean>(`/api/image/updatePositions`, data);
+    return this.http.put<boolean>(`/api/image/positions`, data);
+  }
+
+  saveImageInfo(id: string, data: { caption: string }): Observable<boolean> {
+    return this.http.put<boolean>(`/api/image/${id}/info`, data);
   }
 
   /**

@@ -1,4 +1,16 @@
-import { AfterViewInit, Component, DoCheck, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  DoCheck,
+  ElementRef,
+  EventEmitter,
+  Input,
+  Output,
+  Renderer2,
+  ViewChild
+} from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 import * as Packery from 'packery';
 import { Observable, Subject } from 'rxjs';
 import { debounceTime, map, tap } from 'rxjs/operators';
@@ -42,9 +54,11 @@ export class GalleryComponent implements AfterViewInit, DoCheck {
   @Input() progress: Array<LoadingImage>;
   @Input() trackBy: (input: IImageDocument) => any;
   @ViewChild('grid') gridElem: ElementRef;
+  @ViewChild('overlay') overlay: ElementRef;
 
-  @Output() readonly updatedImages = new EventEmitter();
-  updatedImagesCollection: Map<string, ImagePosition>;
+  @Output() readonly movedImages = new EventEmitter();
+  @Output() readonly updatedImage = new EventEmitter();
+  movedImagesCollection: Map<string, ImagePosition>;
   imagesChangedSubject = new Subject<Array<ImagePosition>>();
 
   progressLength: number;
@@ -52,15 +66,25 @@ export class GalleryComponent implements AfterViewInit, DoCheck {
   currentImages: Array<GalleryItem>;
   gridInst: any;
 
-  constructor() {
-    this.updatedImagesCollection = new Map();
+  imageSettingsForm = new FormGroup({
+    caption: new FormControl('')
+  });
+
+  currentEditing: {
+    originalTop: string;
+    galleryItem: GalleryItem;
+    itemElement: HTMLElement;
+  };
+
+  constructor(private readonly renderer: Renderer2, private readonly ref: ChangeDetectorRef) {
+    this.movedImagesCollection = new Map();
 
     this.imagesChangedSubject
       .pipe(
-        tap(imagePositions => imagePositions.forEach(imagePosition => this.updatedImagesCollection.set(imagePosition._id, imagePosition))),
+        tap(imagePositions => imagePositions.forEach(imagePosition => this.movedImagesCollection.set(imagePosition._id, imagePosition))),
         debounceTime(1000),
         map(imagePositions => {
-          const result = Array.from(this.updatedImagesCollection.values());
+          const result = Array.from(this.movedImagesCollection.values());
 
           result.forEach(
             item =>
@@ -76,8 +100,8 @@ export class GalleryComponent implements AfterViewInit, DoCheck {
         })
       )
       .subscribe(imagePositions => {
-        this.updatedImages.emit(imagePositions);
-        this.updatedImagesCollection.clear();
+        this.movedImages.emit(imagePositions);
+        this.movedImagesCollection.clear();
       });
   }
 
@@ -121,6 +145,46 @@ export class GalleryComponent implements AfterViewInit, DoCheck {
     this.gridInst.on('dragItemPositioned', (item: PackeryItemMock) => {
       this.imagesChangedSubject.next([this.packeryItemToImagePosition(item)]);
     });
+  }
+
+  editImageDetails(galleryItem: GalleryItem, imageElement: HTMLElement): void {
+    if (this.currentEditing) {
+      return;
+    }
+
+    this.renderer.addClass(this.overlay.nativeElement, 'display');
+    this.renderer.addClass(imageElement, 'editing');
+    const originalTop = imageElement.style.top;
+
+    this.renderer.setStyle(imageElement, 'top', `${window.scrollY}px`);
+    this.currentEditing = {
+      galleryItem,
+      originalTop,
+      itemElement: imageElement
+    };
+    const currentEditingImage = this.images.find(inputImage => inputImage._id === galleryItem.id);
+    this.imageSettingsForm.get('caption').setValue(currentEditingImage.info.caption || '');
+
+    this.ref.detectChanges();
+  }
+
+  saveImageDetails(updatedGalleryItem: GalleryItem): void {
+    const updatedImage = this.images.find(inputImage => inputImage._id === updatedGalleryItem.id);
+    updatedImage.info.caption = this.imageSettingsForm.get('caption').value;
+
+    this.updatedImage.emit(updatedImage);
+    this.closeImageDetails();
+  }
+
+  closeImageDetails(): void {
+    if (this.currentEditing) {
+      const image = this.currentEditing.itemElement;
+      this.renderer.removeClass(this.overlay.nativeElement, 'display');
+      this.renderer.removeClass(image, 'editing');
+      this.renderer.setStyle(image, 'top', this.currentEditing.originalTop);
+
+      delete this.currentEditing;
+    }
   }
 
   private packeryItemToImagePosition(item: PackeryItemMock): ImagePosition {

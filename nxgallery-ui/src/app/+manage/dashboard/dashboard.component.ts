@@ -8,10 +8,14 @@ import { InputFile } from '../../shared/image-upload/interfaces/input-file';
 
 import { IImageDocument } from './../../../../../shared/interfaces/imageData';
 
-export interface UploadProgress extends LoadingImage {
+export interface UploadingImage extends LoadingImage {
   inputFile: InputFile;
   progress: BehaviorSubject<number>;
   newPosition?: { x: number, y: number };
+}
+
+interface UploadedOrExistingImage extends IImageDocument {
+  dbId?: string
 }
 
 @Component({
@@ -22,8 +26,8 @@ export interface UploadProgress extends LoadingImage {
 export class DashboardComponent implements OnInit {
   @ViewChild('imageGrid') imageGrid: ElementRef;
 
-  uploadsInProgress: Array<UploadProgress>;
-  images: Array<IImageDocument & { dbId?: string }>;
+  uploadsInProgress: Array<UploadingImage>;
+  images: Array<UploadedOrExistingImage>;
   checkChangesTimeout: number;
 
   constructor(private readonly imageService: ImageService, private readonly ref: ChangeDetectorRef) {
@@ -114,6 +118,16 @@ export class DashboardComponent implements OnInit {
           unsavedImage.newPosition = newImageInfo.position;
         }
       })
+  }
+
+  saveImageInfo(image: UploadedOrExistingImage): void {
+    this.imageService.saveImageInfo(image.dbId || image._id, {
+      caption: image.info.caption
+    }).subscribe(() => {
+      // do nothing on success, no need
+    }, (err) => {
+      console.error(err);
+    });
   }
 
   private executeNextUpload(): void {

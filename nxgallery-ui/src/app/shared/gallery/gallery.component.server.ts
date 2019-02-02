@@ -35,5 +35,5 @@ export class GalleryComponent {
   @Input() trackBy: (input: IImageDocument) => any;
   @ViewChild('grid') gridElem: ElementRef;
 
-  @Output() readonly updatedImages = new EventEmitter();
+  @Output() readonly movedImages = new EventEmitter();
 }

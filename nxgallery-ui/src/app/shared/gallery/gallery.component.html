@@ -1,7 +1,29 @@
 <div class="grid" #grid>
-  <div class="grid-item" [attr.id]="image.id" *nxgGalleryItems="let image of currentImages; gridInst: gridInst">
+  <div class="grid-item" [attr.id]="image.id" #imageContainer
+      *nxgGalleryItems="let image of currentImages; gridInst: gridInst; draggable: currentEditing === undefined" #gridItem>
     <div class="spacer" [ngStyle]="{ 'padding-top': (100 / image.aspect) + '%' }"></div>
-    <img *ngIf="image.url" [attr.src]="image.url" />
+
+    <div class="image-container">
+      <img *ngIf="image.url" [attr.src]="image.url" (click)="editImageDetails(image, imageContainer)" />
+      
+      <mat-card class="image-settings" *ngIf="currentEditing !== undefined && currentEditing.itemElement === imageContainer">
+        <mat-card-header>
+          <mat-card-title>Image Parameters</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="imageSettingsForm">
+            <mat-form-field>
+              <input matInput placeholder="Caption" formControlName="caption">
+            </mat-form-field>
+          </form>
+        </mat-card-content>
+        <mat-card-actions align="end">
+          <button mat-flat-button (click)="closeImageDetails()">Cancel</button>
+          <button mat-raised-button color="primary" (click)="saveImageDetails(image)">Save</button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+
     <div class="loading-overlay" *ngIf="image.progress && image.progress.value >= 100">
       <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     </div>
@@ -9,4 +31,10 @@
       <mat-progress-bar mode="determinate" [value]="image.progress | async"></mat-progress-bar>
     </div>
   </div>
+</div>
+<div class="overlay" (click)="closeImageDetails()" #overlay>
+  <button mat-fab color="basic">
+    <mat-icon aria-label="Close image info editor">close</mat-icon>
+  </button>
+  <div class="overlay-bg"></div>
 </div>
