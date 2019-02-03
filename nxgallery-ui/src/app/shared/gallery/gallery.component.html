@@ -6,7 +6,8 @@
     <div class="image-container">
       <img *ngIf="image.url" [attr.src]="image.url" (click)="editImageDetails(image, imageContainer)" />
       
-      <mat-card class="image-settings" *ngIf="currentEditing !== undefined && currentEditing.itemElement === imageContainer">
+      <mat-card class="image-settings" 
+        *ngIf="currentEditing !== undefined && currentEditing.itemElement === imageContainer">
         <mat-card-header>
           <mat-card-title>Image Parameters</mat-card-title>
         </mat-card-header>

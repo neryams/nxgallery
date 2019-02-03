@@ -6,10 +6,24 @@
     [infiniteScrollContainer]="'#scrollContainer'"
     [fromRoot]="true"
     (scrolled)="onScroll()"
-    [ngStyle]="{ height: (containerHeight) + 'px' }">
+    [style.height.px]="containerHeight">
       <div class="grid-item" *ngFor="let image of images; trackBy: imageUUID"
-        [ngStyle]="{ top: image.position.y + 'px', left: image.position.x + 'px' }">
-        <img [attr.src]="image.url" />
+        [ngClass]="{ 'display-detail': image.displayDetail }"
+        [style.top.px]="image.position.top"
+        [style.left.px]="image.position.left"
+        [style.width.px]="image.position.width"
+        [style.height.px]="image.position.height"
+        (click)="openImageDetails(image)">
+        <div class="image-container">
+          <img [attr.src]="image.displayDetail ? image.largeFileUrl : image.url"
+            [attr.aria-describedby]="'caption_' + image.id" />
+        </div>
+        <div *ngIf="image.caption" class="caption" [attr.id]="'caption_' + image.id">
+          {{ image.caption }}
+        </div>
       </div>
   </div>
+</div>
+<div class="overlay" (click)="closeImageDetails()" #overlay>
+  <div class="overlay-bg"></div>
 </div>

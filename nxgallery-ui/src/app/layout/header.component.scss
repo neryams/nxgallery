@@ -1,5 +1,9 @@
 @import '~src/assets/sass/mixin/bem';
 
+h1 a {
+  color: inherit;
+}
+
 .header {
   @include el('logo') {
     vertical-align: middle;
@@ -20,7 +24,7 @@
   position: absolute;
   top: 0;
   right: 0;
-  
+
   a {
     margin-right: 15px;
   }
