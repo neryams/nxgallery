@@ -2,6 +2,7 @@
 
 .grid-item {
   @include grid-item();
+  margin: 5px;
 
   .image-settings {
     display: none;

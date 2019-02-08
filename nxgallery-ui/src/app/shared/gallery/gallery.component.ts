@@ -134,9 +134,7 @@ export class GalleryComponent implements AfterViewInit, DoCheck {
     const gridElement: HTMLElement = this.gridElem.nativeElement;
     const gridItemElements = gridElement.querySelectorAll('.grid-item');
 
-    this.gridInst = new Packery(this.gridElem.nativeElement, {
-      gutter: 10
-    });
+    this.gridInst = new Packery(this.gridElem.nativeElement, {});
 
     this.gridInst.on('layoutComplete', (laidOutItems: Array<PackeryItemMock>) => {
       this.imagesChangedSubject.next(laidOutItems.map(item => this.packeryItemToImagePosition(item)));
