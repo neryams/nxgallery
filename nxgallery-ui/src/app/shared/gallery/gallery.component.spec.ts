@@ -1,4 +1,10 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MockImageService } from '~/app/framework/images/testing/mocks/image-service.mock';
 import { t } from '~/app/framework/testing';
@@ -15,7 +21,15 @@ describe('GalleryComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [GalleryItemsDirective, GalleryComponent],
-      imports: [MatProgressBarModule]
+      imports: [
+        ReactiveFormsModule,
+        MatProgressBarModule,
+        MatCardModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatIconModule,
+        MatButtonModule
+      ]
     }).compileComponents();
   }));
 
