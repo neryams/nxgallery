@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@an
 import { BehaviorSubject } from 'rxjs';
 import * as uuidV4 from 'uuid/v4';
 import { ImagePosition, LoadingImage } from '~/app/shared/gallery/gallery.component';
+import { appConfig } from '~/environments/environment';
 
 import { ImageService } from '../../framework/images/image.service';
 import { InputFile } from '../../shared/image-upload/interfaces/input-file';
@@ -77,8 +78,13 @@ export class DashboardComponent implements OnInit {
         const savedImage = this.images.find(image => image._id === newImageInfo._id);
         // Store x/y position as ratio of width so we can scale the image positions programattically
         // and responsively for smaller screens
+
+        // We want to save the images without a gutter for consistency
+        const column = Math.floor(newImageInfo.position.x / containerBoundingBox.width * appConfig.gallery.columns);
+        const gutterFix = appConfig.gallery.gutter * column / appConfig.gallery.columns;
+
         const newImagePosition = {
-          x: newImageInfo.position.x / containerBoundingBox.width,
+          x: (newImageInfo.position.x - gutterFix) / containerBoundingBox.width,
           y: newImageInfo.position.y / containerBoundingBox.width
         }
         

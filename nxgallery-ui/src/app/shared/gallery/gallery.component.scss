@@ -1,8 +1,18 @@
 @import '~src/assets/sass/mixin/gallery';
 
+.grid {
+  @include grid();
+
+  .grid-sizer {
+    @include grid-item(3);
+  }
+  .gutter-sizer {
+    @include grid-gutter();
+  }
+}
+
 .grid-item {
-  @include grid-item();
-  margin: 5px;
+  @include grid-item(3);
 
   .image-settings {
     display: none;

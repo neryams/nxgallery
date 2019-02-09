@@ -1,10 +1,17 @@
 import { isPlatformBrowser } from '@angular/common';
 import { ChangeDetectorRef, Component, ElementRef, HostListener, Inject, OnInit, PLATFORM_ID, Renderer2, ViewChild } from '@angular/core';
+import { appConfig } from '~/environments/environment';
 
 import { ImageService } from '../framework/images/image.service';
 
-const gridColumns = 3;
-const gridGutter = 10;
+const gridColumns = appConfig.gallery.columns;
+const gridGutter = appConfig.gallery.gutter;
+
+const breakpoints = [
+  { pageWidth: 0, sidePadding: 0, topPadding: 50 },
+  { pageWidth: 750, sidePadding: 50, topPadding: 50 },
+  { pageWidth: 1000, sidePadding: 100, topPadding: 50 }
+]
 
 interface DisplayImage { 
   id: string;
@@ -124,7 +131,7 @@ export class LandingComponent implements OnInit {
 
   private calculateDetailImagePosition(): { left: number, top: number, width: number, height: number } {
     const margin = 100;
-    const scrollOffset = this.imageGrid.nativeElement.getBoundingClientRect().top * -1 + 100;
+    const scrollOffset = this.imageGrid.nativeElement.getBoundingClientRect().top * -1 + 200;
 
     return {
       left: margin - this.galleryPosition.x,
@@ -137,10 +144,13 @@ export class LandingComponent implements OnInit {
   private getImages(page = 1): void {
     this.imageService.getImages(page).subscribe(images => {
       this.images.push(...images.map(image => {
+        const column = Math.round(image.info.position.x * gridColumns);
+        const gutterFix = appConfig.gallery.gutter * column / appConfig.gallery.columns;
+
         const imagePosition = {
           top: image.info.position.y * this.galleryWidth,
-          left: image.info.position.x * this.galleryWidth,
-          width: this.galleryWidth / gridColumns - gridGutter,
+          left: image.info.position.x * this.galleryWidth +  gutterFix,
+          width: this.galleryWidth / gridColumns - (gridGutter * (gridColumns - 1) / gridColumns),
           height: (this.galleryWidth / gridColumns - gridGutter) / image.info.aspect
         };
 

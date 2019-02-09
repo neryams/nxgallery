@@ -7,5 +7,5 @@ body {
 
 .main {
   position: relative;
-  max-height: calc(100vh - #{rem(6.4)});
+  height: calc(100vh - #{rem(6.4)});
 }

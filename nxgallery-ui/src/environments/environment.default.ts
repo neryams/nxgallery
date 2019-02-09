@@ -3,6 +3,10 @@ export const appConfig = {
     applicationName: 'APP_NAME',
     applicationUrl: 'http://ng-seed.fulls1z3.com'
   },
+  gallery: {
+    gutter: 10,
+    columns: 3
+  },
   seo: {
     defaultPageTitle: 'DEFAULT_TITLE',
     pageTitlePositioning: 10,

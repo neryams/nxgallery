@@ -2,7 +2,6 @@
 
 .grid {
   @include grid();
-  padding-left: $gutter-size / 2;
   margin-bottom: 30px;
 
   > * {
@@ -11,7 +10,7 @@
 }
 
 .grid-item {
-  @include grid-item();
+  @include grid-item(3);
 
   position: absolute;
 
@@ -23,6 +22,10 @@
   }
   .caption {
     display: none;
+    width: 0;
+    transition-property: width;
+    transition-duration: 0.25s;
+    transition-timing-function: ease;
   }
 
   &.display-detail {

@@ -6,6 +6,7 @@ import {
   ElementRef,
   EventEmitter,
   Input,
+  OnInit,
   Output,
   Renderer2,
   ViewChild
@@ -14,6 +15,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import * as Packery from 'packery';
 import { Observable, Subject } from 'rxjs';
 import { debounceTime, map, tap } from 'rxjs/operators';
+import { appConfig } from '~/environments/environment';
 
 import { IImageDocument } from './../../../../../shared/interfaces/imageData';
 
@@ -49,7 +51,7 @@ interface PackeryItemMock {
   templateUrl: './gallery.component.html',
   styleUrls: ['./gallery.component.scss']
 })
-export class GalleryComponent implements AfterViewInit, DoCheck {
+export class GalleryComponent implements OnInit, AfterViewInit, DoCheck {
   @Input() images: Array<IImageDocument>;
   @Input() progress: Array<LoadingImage>;
   @Input() trackBy: (input: IImageDocument) => any;
@@ -76,7 +78,7 @@ export class GalleryComponent implements AfterViewInit, DoCheck {
     itemElement: HTMLElement;
   };
 
-  constructor(private readonly renderer: Renderer2, private readonly ref: ChangeDetectorRef) {
+  constructor(private readonly renderer: Renderer2, private readonly ref: ChangeDetectorRef, element: ElementRef) {
     this.movedImagesCollection = new Map();
 
     this.imagesChangedSubject
@@ -103,6 +105,10 @@ export class GalleryComponent implements AfterViewInit, DoCheck {
         this.movedImages.emit(imagePositions);
         this.movedImagesCollection.clear();
       });
+  }
+
+  ngOnInit(): void {
+    this.gridElem.nativeElement.style.setProperty('--gutter', `${appConfig.gallery.gutter}px`);
   }
 
   ngDoCheck(): void {
@@ -134,7 +140,13 @@ export class GalleryComponent implements AfterViewInit, DoCheck {
     const gridElement: HTMLElement = this.gridElem.nativeElement;
     const gridItemElements = gridElement.querySelectorAll('.grid-item');
 
-    this.gridInst = new Packery(this.gridElem.nativeElement, {});
+    this.gridInst = new Packery(this.gridElem.nativeElement, {
+      columnWidth: '.grid-sizer',
+      gutter: '.gutter-sizer',
+      // do not use .grid-sizer in layout
+      itemSelector: '.grid-item',
+      percentPosition: true
+    });
 
     this.gridInst.on('layoutComplete', (laidOutItems: Array<PackeryItemMock>) => {
       this.imagesChangedSubject.next(laidOutItems.map(item => this.packeryItemToImagePosition(item)));

@@ -1,4 +1,6 @@
 <div class="grid" #grid>
+  <div class="grid-sizer"></div>
+  <div class="gutter-sizer"></div>
   <div class="grid-item" [attr.id]="image.id" #imageContainer
       *nxgGalleryItems="let image of currentImages; gridInst: gridInst; draggable: currentEditing === undefined" #gridItem>
     <div class="spacer" [ngStyle]="{ 'padding-top': (100 / image.aspect) + '%' }"></div>

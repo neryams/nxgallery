@@ -1,15 +1,19 @@
-$gutter-size: 10px;
-
 @mixin grid() {
   max-width: 1000px;
   margin: 0 auto;
+
+  --gutter: 0px;
 }
 
-@mixin grid-item() {
-  width: calc(33% - #{$gutter-size});
+@mixin grid-item($colNum) {
+  width: calc(#{100% / $colNum} - (var(--gutter) * #{($colNum - 1) / $colNum}));
   position: relative;
   background-color: #e4e4e4;
   display: block;
+}
+
+@mixin grid-gutter() {
+  width: var(--gutter);
 }
 
 @mixin overlay() {
