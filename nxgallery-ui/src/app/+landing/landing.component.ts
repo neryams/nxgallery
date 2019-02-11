@@ -8,9 +8,9 @@ const gridColumns = appConfig.gallery.columns;
 const gridGutter = appConfig.gallery.gutter;
 
 const breakpoints = [
-  { pageWidth: 0, sidePadding: 0, topPadding: 50 },
-  { pageWidth: 750, sidePadding: 50, topPadding: 50 },
-  { pageWidth: 1000, sidePadding: 100, topPadding: 50 }
+  { pageWidth: 0, sideMargin: 0, topPadding: -15 },
+  { pageWidth: 750, sideMargin: 50, topPadding: -15 },
+  { pageWidth: 1000, sideMargin: 50, topPadding: -15 }
 ]
 
 interface DisplayImage { 
@@ -55,6 +55,15 @@ export class LandingComponent implements OnInit {
           image.position.width *= galleryWidth / this.galleryWidth;
           image.position.height *= galleryWidth / this.galleryWidth;
         });
+
+        if (this.currImageDetail) {
+          this.currImageDetail.image.position = this.calculateDetailImagePosition();
+          
+          this.currImageDetail.originalPosition.left *= galleryWidth / this.galleryWidth;
+          this.currImageDetail.originalPosition.top *= galleryWidth / this.galleryWidth;
+          this.currImageDetail.originalPosition.width *= galleryWidth / this.galleryWidth;
+          this.currImageDetail.originalPosition.height *= galleryWidth / this.galleryWidth;
+        }
 
         this.galleryWidth = galleryWidth;
       }
@@ -130,14 +139,19 @@ export class LandingComponent implements OnInit {
   }
 
   private calculateDetailImagePosition(): { left: number, top: number, width: number, height: number } {
-    const margin = 100;
-    const scrollOffset = this.imageGrid.nativeElement.getBoundingClientRect().top * -1 + 200;
+    const breakpointOptions = [...breakpoints];
+    let breakpoint = breakpointOptions.pop();
+    while (breakpoint.pageWidth > window.innerWidth && breakpointOptions.length > 0) {
+      breakpoint = breakpointOptions.pop();
+    }
+    const margin = breakpoint.sideMargin;
+    const topOffset = this.imageGrid.nativeElement.getBoundingClientRect().top + breakpoint.topPadding;
 
     return {
       left: margin - this.galleryPosition.x,
-      top: margin - this.galleryPosition.y + scrollOffset,
-      width: window.innerWidth - margin * 2,
-      height: window.innerHeight - margin * 2
+      top: margin - this.galleryPosition.y + topOffset,
+      width: (margin === 0 ? undefined : window.innerWidth - margin * 2),
+      height: window.innerHeight - margin * 2 - topOffset
     };
   }
 

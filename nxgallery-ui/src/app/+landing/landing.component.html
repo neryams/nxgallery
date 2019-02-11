@@ -3,8 +3,6 @@
     infiniteScroll
     [infiniteScrollDistance]="2"
     [infiniteScrollThrottle]="50"
-    [infiniteScrollContainer]="'#scrollContainer'"
-    [fromRoot]="true"
     (scrolled)="onScroll()"
     [style.height.px]="containerHeight">
       <div class="grid-item" *ngFor="let image of images; trackBy: imageUUID"

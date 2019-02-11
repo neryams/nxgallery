@@ -9,6 +9,6 @@ import { BaseComponent } from '~/app/framework/core';
 })
 export class MainComponent extends BaseComponent {
   onActivate(event$: any, scrollContainer: any): void {
-    scrollContainer.scrollTop = 0;
+    // scrollContainer.scrollTop = 0;
   }
 }

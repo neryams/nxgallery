@@ -31,12 +31,13 @@
   &.display-detail {
     z-index: 10;
     background: transparent;
-    transition-property: top, left, width, height;
-    transition-duration: 0.25s;
-    transition-timing-function: ease;
     display: flex;
     align-items: flex-start;
     pointer-events: none;
+    width: 100%;
+    transition-property: top, left, width, height;
+    transition-duration: 0.25s;
+    transition-timing-function: ease;
 
     img {
       width: 100%;
