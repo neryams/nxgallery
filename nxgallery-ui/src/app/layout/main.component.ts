@@ -8,7 +8,7 @@ import { BaseComponent } from '~/app/framework/core';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MainComponent extends BaseComponent {
-  onActivate(event$: any, scrollContainer: any): void {
+  onActivate(event$: any): void {
     // scrollContainer.scrollTop = 0;
   }
 }
