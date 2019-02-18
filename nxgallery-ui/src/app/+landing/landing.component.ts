@@ -8,9 +8,9 @@ const gridColumns = appConfig.gallery.columns;
 const gridGutter = appConfig.gallery.gutter;
 
 const breakpoints = [
-  { pageWidth: 0, sideMargin: 0, topPadding: -15 },
-  { pageWidth: 750, sideMargin: 50, topPadding: -15 },
-  { pageWidth: 1000, sideMargin: 50, topPadding: -15 }
+  { minPageWidth: 0, sideMargin: 0, topMargin: 50, fillHeight: false },
+  { minPageWidth: 800, sideMargin: 50, topMargin: 50, fillHeight: true },
+  { minPageWidth: 1200, sideMargin: 150, topMargin: 150, fillHeight: true }
 ]
 
 interface DisplayImage { 
@@ -48,6 +48,8 @@ export class LandingComponent implements OnInit {
     if (isPlatformBrowser(this.platformId)) {
       const gridBoundingClientRect = (this.imageGrid.nativeElement as HTMLElement).getBoundingClientRect();
       const galleryWidth = gridBoundingClientRect.width;
+      this.galleryPosition.x = gridBoundingClientRect.left;
+      
       if (galleryWidth !== this.galleryWidth) {
         this.images.forEach(image => {
           image.position.left *= galleryWidth / this.galleryWidth;
@@ -55,6 +57,7 @@ export class LandingComponent implements OnInit {
           image.position.width *= galleryWidth / this.galleryWidth;
           image.position.height *= galleryWidth / this.galleryWidth;
         });
+
 
         if (this.currImageDetail) {
           this.currImageDetail.image.position = this.calculateDetailImagePosition();
@@ -66,10 +69,6 @@ export class LandingComponent implements OnInit {
         }
 
         this.galleryWidth = galleryWidth;
-      }
-      this.galleryPosition = {
-        x: gridBoundingClientRect.left,
-        y: gridBoundingClientRect.top
       }
     }
   }
@@ -139,19 +138,23 @@ export class LandingComponent implements OnInit {
   }
 
   private calculateDetailImagePosition(): { left: number, top: number, width: number, height: number } {
+    const screenWidth = document.documentElement.clientWidth;
+    const screenHeight = document.documentElement.clientHeight;
     const breakpointOptions = [...breakpoints];
     let breakpoint = breakpointOptions.pop();
-    while (breakpoint.pageWidth > window.innerWidth && breakpointOptions.length > 0) {
+    while (breakpoint.minPageWidth > screenWidth && breakpointOptions.length > 0) {
       breakpoint = breakpointOptions.pop();
     }
-    const margin = breakpoint.sideMargin;
-    const topOffset = this.imageGrid.nativeElement.getBoundingClientRect().top + breakpoint.topPadding;
+    const sideMargin = breakpoint.sideMargin;
+    const topMargin = breakpoint.topMargin;
+    // const topOffset = breakpoint.topPadding + window.scrollY;
+    const topOffset = window.scrollY;
 
     return {
-      left: margin - this.galleryPosition.x,
-      top: margin - this.galleryPosition.y + topOffset,
-      width: (margin === 0 ? undefined : window.innerWidth - margin * 2),
-      height: window.innerHeight - margin * 2 - topOffset
+      left: sideMargin - this.galleryPosition.x,
+      top: topMargin - this.galleryPosition.y + topOffset,
+      width: (sideMargin === 0 ? undefined : screenWidth - sideMargin * 2), // Fall back to the css which is width: 100% if no margin
+      height: breakpoint.fillHeight ? screenHeight - topMargin * 2 : undefined
     };
   }
 
@@ -168,7 +171,7 @@ export class LandingComponent implements OnInit {
           height: (this.galleryWidth / gridColumns - gridGutter) / image.info.aspect
         };
 
-        const imageAbsBottom = imagePosition.top + imagePosition.height;
+        const imageAbsBottom = imagePosition.top + imagePosition.height + 10;
         if(this.containerHeight < imageAbsBottom) {
           this.containerHeight = imageAbsBottom;
         }
