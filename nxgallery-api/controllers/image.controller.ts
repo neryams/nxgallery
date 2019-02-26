@@ -9,7 +9,7 @@ import * as _ from 'lodash';
 import * as multer from 'multer';
 
 import { ImageStorage } from '../helpers/ImageStorage';
-import { ImageData } from './../../shared';
+import { ImageData, ErrorCodes } from './../../shared';
 
 // setup a new instance of the AvatarStorage engine 
 const storage = new ImageStorage({
@@ -46,20 +46,35 @@ export class ImageController {
   constructor() {
     this.imageDatabase = new ImageDatabase();
   }
+  
+  getAlbum(req: Request, res: Response) {
+    let perPage = req.params.perPage ? parseInt(req.params.perPage, 10) : undefined;
+    (
+      req.params.albumId ?
+      this.imageDatabase.getAlbum(req.params.albumId, perPage) :
+      this.imageDatabase.getRootAlbum(perPage)
+    )
+    .then(result => {
+      res.json(result);
+    }, (err) => {
+      res.status(500).json({ message: 'Could not find album for user', err: err });
+    })
+  }
 
   getImages(req: Request, res: Response) {
-    let perPage = req.params.perPage ? parseInt(req.params.perPage) : 50;
-    let page = req.params.page ? parseInt(req.params.page) : 1;
+    let perPage = req.params.perPage ? parseInt(req.params.perPage, 10) : 50;
+    let page = req.params.page ? parseInt(req.params.page, 10) : 1;
+    let albumId = req.params.albumId;
 
     return {
-      all: () => this.getImageHandler(res, this.imageDatabase.getImagesBySort(null, 0)),
-      bySort: () => this.getImageHandler(res, this.imageDatabase.getImagesBySort(perPage, (page - 1) * perPage)),
-      byCreated: () => this.getImageHandler(res, this.imageDatabase.getImagesByCreated(perPage, (page - 1) * perPage))
+      all: () => this.getImageHandler(res, this.imageDatabase.getImagesBySort(albumId, null, 0)),
+      bySort: () => this.getImageHandler(res, this.imageDatabase.getImagesBySort(albumId, perPage, (page - 1) * perPage)),
+      byCreated: () => this.getImageHandler(res, this.imageDatabase.getImagesByCreated(albumId, perPage, (page - 1) * perPage))
     };
   }
 
   updatePositions(req: Request, res: Response) {
-    Promise.all(this.imageDatabase.saveImagePositions(req.body)).then(result => {
+    Promise.all(this.imageDatabase.saveImagePositions(req.params.albumId, req.body)).then(result => {
       res.json(true);
     }, (err) => {
       res.status(500).json({ message: 'Could not update image positions', err: err });
@@ -67,7 +82,7 @@ export class ImageController {
   }
 
   saveImageInfo(req: Request, res: Response) {
-    this.imageDatabase.saveImageInfo(req.params.id, req.body).then(result => {
+    this.imageDatabase.saveImageInfo(req.params.id, req.params.albumId, req.body).then(result => {
       res.json(true);
     }, (err) => {
       res.status(500).json({ message: 'Could not update image info', err: err });
@@ -76,6 +91,7 @@ export class ImageController {
 
   upload(req: Request, res: Response) {
     let fileHandlerUploader = fileHandler.single('image');
+    let albumId = req.params.albumId;
 
     fileHandlerUploader(req, res, (err) => {
       if(err) {
@@ -92,10 +108,14 @@ export class ImageController {
           info: file.imageInfo
         }
     
-        this.imageDatabase.saveImageData(response).then((result) => {
-          res.json(result.toJSON());
+        this.imageDatabase.saveImageData(response, albumId).then((result) => {
+          res.json(result);
         }, (err: any) => {
-          res.status(500).send({ message: 'Could not save image data', err: err });
+          if (err.message === ErrorCodes.albumNotFound.code) {
+            res.status(ErrorCodes.albumNotFound.status).json(ErrorCodes.albumNotFound);
+          } else {
+            res.status(500).send({ message: 'Could not save image data', err: err });
+          }
         });
       }
     });

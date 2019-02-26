@@ -1,3 +1,12 @@
+export interface Album {
+  user: string;
+  images: Array<IImageDocument>;
+}
+
+export interface IAlbumDocument extends Album {
+  _id: string
+}
+
 export interface ImageData {
   title: string,
   imageUrls: { [key: number]: string };

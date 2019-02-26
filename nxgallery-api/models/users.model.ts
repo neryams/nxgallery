@@ -1,3 +1,4 @@
+import { Album } from './../../shared/interfaces/imageData';
 import { randomBytes, createHmac } from 'crypto';
 import { Schema, Document, model as createModel } from 'mongoose';
 import * as _ from 'lodash';
@@ -5,14 +6,21 @@ import * as _ from 'lodash';
 import { BaseDatabase } from './base.model';
 import { User, ErrorCodes } from './../../shared';
 import { UserAuthInput } from '../controllers/users.controller';
+import { AlbumModel } from './image.model';
+
+const DEFAULT_THEME = 'modern';
 
 interface IUserDocument extends User, Document {};
 
 const userSchema = new Schema({
   username: String,
   email: String,
+  displayName: String,
   passwordHash: String,
-  passwordSalt: String
+  passwordSalt: String,
+  settings: {
+    theme: String
+  }
 });
 const User = createModel<IUserDocument>('User', userSchema);
 
@@ -28,14 +36,27 @@ export class UsersDatabase extends BaseDatabase {
       } else {
         const passwordData = this.saltHashPassword(userData.password);
 
-        let newUser = new User({ 
+        let newUser = new User({
           username: userData.username,
           email: userData.email,
+          displayName: userData.username,
           passwordHash: passwordData.passwordHash,
-          passwordSalt: passwordData.salt
-        });
+          passwordSalt: passwordData.salt,
+          settings: {
+            theme: DEFAULT_THEME
+          }
+        } as User);
 
-        return newUser.save();
+        return newUser.save().then((user) => {
+          let newUserRootAlbum = new AlbumModel({
+            user: user._id,
+            images: []
+          });
+          
+          newUserRootAlbum.save().then(() => {
+            return user;
+          })
+        });
       }
     });
   }

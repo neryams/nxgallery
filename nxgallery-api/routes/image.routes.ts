@@ -15,29 +15,37 @@ class ImageRoutes {
 
     // Public Routes
 
-    this.router.get('/getByCreatedDate/:perPage,:page',
-      (req: express.Request, res: express.Response) => imageController.getImages(req, res).byCreated()
+    this.router.get('/root/:perPage',
+      (req: express.Request, res: express.Response) => imageController.getAlbum(req, res)
     );
-
-    this.router.get('/getBySort/:perPage,:page',
+    this.router.get('/album/:albumId/:perPage,:page',
       (req: express.Request, res: express.Response) => imageController.getImages(req, res).bySort()
+    );
+    // this.router.get('/album/:albumId/:perPage,:page',
+    //   (req: express.Request, res: express.Response) => imageController.getImages(req, res).byCreated()
+    // );
+    this.router.get('/album/:albumId/:perPage',
+      (req: express.Request, res: express.Response) => imageController.getAlbum(req, res)
     );
 
     // Secured Routes
 
-    this.router.get('/getAll', jwt({secret: config.get('JWT_SECRET')}),
-      (req: express.Request, res: express.Response) => imageController.getImages(req, res).all()
+    this.router.get('/manage/root', jwt({secret: config.get('JWT_SECRET')}),
+      (req: express.Request, res: express.Response) => imageController.getAlbum(req, res)
+    );
+    this.router.get('/manage/:albumId', jwt({secret: config.get('JWT_SECRET')}),
+      (req: express.Request, res: express.Response) => imageController.getAlbum(req, res)
     );
 
-    this.router.put('/positions', jwt({secret: config.get('JWT_SECRET')}),
+    this.router.put('/manage/:albumId/positions', jwt({secret: config.get('JWT_SECRET')}),
       (req: express.Request, res: express.Response) => imageController.updatePositions(req, res),
     );
 
-    this.router.put('/:id/info', jwt({secret: config.get('JWT_SECRET')}),
+    this.router.put('/manage/:albumId/:id/info', jwt({secret: config.get('JWT_SECRET')}),
       (req: express.Request, res: express.Response) => imageController.saveImageInfo(req, res),
     );
 
-    this.router.post('/upload', jwt({secret: config.get('JWT_SECRET')}),
+    this.router.post('/manage/:albumId/upload', jwt({secret: config.get('JWT_SECRET')}),
       (req: express.Request, res: express.Response) => imageController.upload(req, res)
     );
 

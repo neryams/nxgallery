@@ -13,5 +13,10 @@ export const ErrorCodes = {
     status: 403,
     code: 'NOT_AUTHENTICATED',
     message: 'Credentials were incorrect.'
+  },
+  albumNotFound: {
+    status: 403,
+    code: 'ALBUM_NOT_FOUND',
+    message: 'Album was not found with provided ID.'
   }
 }

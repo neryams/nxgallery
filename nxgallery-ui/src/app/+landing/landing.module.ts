@@ -5,6 +5,7 @@ import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 
 import { SharedModule } from '../framework/core';
 import { ImageFrameworkModule } from '../framework/images/image.module';
+import { RootAlbumResolver } from '../framework/images/image.resolvers';
 
 import { LandingComponent } from './landing.component';
 
@@ -17,6 +18,9 @@ const routes = [
         title: 'DEFAULT_TITLE',
         description: 'DEFAULT_META_DESCRIPTION'
       }
+    },
+    resolve: {
+      rootAlbum: RootAlbumResolver
     }
   }
 ];
@@ -29,6 +33,9 @@ const routes = [
     SharedModule,
     ImageFrameworkModule,
     InfiniteScrollModule
+  ],
+  providers: [
+    RootAlbumResolver
   ]
 })
 export class LandingModule { }

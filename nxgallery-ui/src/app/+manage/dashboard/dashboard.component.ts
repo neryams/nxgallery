@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import * as uuidV4 from 'uuid/v4';
 import { ImagePosition, LoadingImage } from '~/app/shared/gallery/gallery.component';
@@ -7,7 +8,7 @@ import { appConfig } from '~/environments/environment';
 import { ImageService } from '../../framework/images/image.service';
 import { InputFile } from '../../shared/image-upload/interfaces/input-file';
 
-import { IImageDocument } from './../../../../../shared/interfaces/imageData';
+import { IAlbumDocument, IImageDocument } from './../../../../../shared/interfaces/imageData';
 
 export interface UploadingImage extends LoadingImage {
   inputFile: InputFile;
@@ -24,23 +25,29 @@ interface UploadedOrExistingImage extends IImageDocument {
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements AfterViewInit {
   @ViewChild('imageGrid') imageGrid: ElementRef;
 
+  album: IAlbumDocument;
   uploadsInProgress: Array<UploadingImage>;
   images: Array<UploadedOrExistingImage>;
   checkChangesTimeout: number;
 
-  constructor(private readonly imageService: ImageService, private readonly ref: ChangeDetectorRef) {
+  constructor(
+    private readonly route: ActivatedRoute,
+    private readonly imageService: ImageService, 
+    private readonly ref: ChangeDetectorRef
+  ) {
     this.uploadsInProgress = [];
     this.images = [];
   }
 
-  ngOnInit(): void {
-    this.imageService.getAllImages().subscribe(images => {
-      this.images = images;
+  ngAfterViewInit(): void {
+    if (this.route.snapshot.data.rootAlbum !== undefined) {
+      this.album = this.route.snapshot.data.rootAlbum;
+      this.images = this.album.images;
       this.ref.detectChanges();
-    })
+    }
   }
 
   upload(inputFile: InputFile): void {
@@ -110,7 +117,7 @@ export class DashboardComponent implements OnInit {
       .filter(image => image !== undefined);
 
     if (payload.length > 0) {
-      this.imageService.saveImagePositions(payload).subscribe((result: boolean) => {
+      this.imageService.saveImagePositions(this.album._id, payload).subscribe((result: boolean) => {
         // do nothing
       });
     }
@@ -127,7 +134,7 @@ export class DashboardComponent implements OnInit {
   }
 
   saveImageInfo(image: UploadedOrExistingImage): void {
-    this.imageService.saveImageInfo(image.dbId || image._id, {
+    this.imageService.saveImageInfo(this.album._id, image.dbId || image._id, {
       caption: image.info.caption
     }).subscribe(() => {
       // do nothing on success, no need
@@ -139,7 +146,7 @@ export class DashboardComponent implements OnInit {
   private executeNextUpload(): void {
     const loader = this.uploadsInProgress[0];
 
-    this.imageService.uploadImage(this.uploadsInProgress[0].inputFile.file).subscribe((result) => {
+    this.imageService.uploadImage(this.album._id, this.uploadsInProgress[0].inputFile.file).subscribe((result) => {
       if (typeof result === 'number') {
         loader.progress.next(result);
       } else {
@@ -149,7 +156,7 @@ export class DashboardComponent implements OnInit {
         this.images[0].dbId = dbId; 
         this.images[0]._id = loader.uid; // Maintain position of loaded image, just swap the info
         if (loader.newPosition !== undefined) {
-          this.imageService.saveImagePositions([{
+          this.imageService.saveImagePositions(this.album._id, [{
             _id: dbId,
             position: loader.newPosition
           }]).subscribe();

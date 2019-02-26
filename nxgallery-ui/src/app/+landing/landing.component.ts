@@ -1,5 +1,8 @@
+
 import { isPlatformBrowser } from '@angular/common';
 import { ChangeDetectorRef, Component, ElementRef, HostListener, Inject, OnInit, PLATFORM_ID, Renderer2, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { IAlbumDocument, IImageDocument } from '~/../../shared';
 import { appConfig } from '~/environments/environment';
 
 import { ImageService } from '../framework/images/image.service';
@@ -34,6 +37,7 @@ export class LandingComponent implements OnInit {
   galleryWidth: number;
   galleryPosition: { x: number, y: number }
 
+  album: IAlbumDocument;
   images: Array<DisplayImage>;
   containerHeight: number;
   currPage: number;
@@ -74,6 +78,7 @@ export class LandingComponent implements OnInit {
   }
 
   constructor(
+    private readonly route: ActivatedRoute,
     private readonly imageService: ImageService, 
     private readonly ref: ChangeDetectorRef,
     private readonly renderer: Renderer2,
@@ -98,7 +103,10 @@ export class LandingComponent implements OnInit {
       }
       this.galleryWidth = gridBoundingClientRect.width;
     }
-    this.getImages(this.currPage);
+    if (this.route.snapshot.data.rootAlbum !== undefined) {
+      this.album = this.route.snapshot.data.rootAlbum;
+      this.processImages(this.album.images);
+    }
   }
 
   onScroll(): void {
@@ -159,34 +167,41 @@ export class LandingComponent implements OnInit {
   }
 
   private getImages(page = 1): void {
-    this.imageService.getImages(page).subscribe(images => {
-      this.images.push(...images.map(image => {
-        const column = Math.round(image.info.position.x * gridColumns);
-        const gutterFix = appConfig.gallery.gutter * column / appConfig.gallery.columns;
-
-        const imagePosition = {
-          top: image.info.position.y * this.galleryWidth,
-          left: image.info.position.x * this.galleryWidth +  gutterFix,
-          width: this.galleryWidth / gridColumns - (gridGutter * (gridColumns - 1) / gridColumns),
-          height: (this.galleryWidth / gridColumns - gridGutter) / image.info.aspect
-        };
-
-        const imageAbsBottom = imagePosition.top + imagePosition.height + 10;
-        if(this.containerHeight < imageAbsBottom) {
-          this.containerHeight = imageAbsBottom;
-        }
-
-        return {
-          id: image._id,
-          url: image.imageUrls['600'],
-          largeFileUrl: image.imageUrls['1200'],
-          caption: image.info.caption,
-          position: imagePosition,
-          displayDetail: false
-        }
-      }));
-      
-      this.ref.detectChanges();
+    this.imageService.getImages(this.album._id, page).subscribe(images => {
+      this.processImages(images);
     })
+  }
+
+  private processImages(images: Array<IImageDocument>): void {
+    this.images.push(...images.map(image => {
+      if (image.info.position === undefined) {
+        image.info.position = { x: 0, y: 0 };
+      }
+      const column = Math.round(image.info.position.x * gridColumns);
+      const gutterFix = appConfig.gallery.gutter * column / appConfig.gallery.columns;
+
+      const imagePosition = {
+        top: image.info.position.y * this.galleryWidth,
+        left: image.info.position.x * this.galleryWidth +  gutterFix,
+        width: this.galleryWidth / gridColumns - (gridGutter * (gridColumns - 1) / gridColumns),
+        height: (this.galleryWidth / gridColumns - gridGutter) / image.info.aspect
+      };
+
+      const imageAbsBottom = imagePosition.top + imagePosition.height + 10;
+      if(this.containerHeight < imageAbsBottom) {
+        this.containerHeight = imageAbsBottom;
+      }
+
+      return {
+        id: image._id,
+        url: image.imageUrls['600'],
+        largeFileUrl: image.imageUrls['1200'],
+        caption: image.info.caption,
+        position: imagePosition,
+        displayDetail: false
+      }
+    }));
+    
+    this.ref.detectChanges();
   }
 }

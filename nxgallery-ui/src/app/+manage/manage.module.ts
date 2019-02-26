@@ -1,3 +1,4 @@
+
 import { NgModule } from '@angular/core';
 import { MATERIAL_SANITY_CHECKS } from '@angular/material';
 import { RouterModule } from '@angular/router';
@@ -6,6 +7,7 @@ import { MaterialModule } from '~/app/framework/material';
 import { environmentConfig } from '~/environments/environment';
 
 import { ImageFrameworkModule } from '../framework/images/image.module';
+import { RootAlbumAllResolver } from '../framework/images/image.resolvers';
 import { LayoutModule } from '../layout/layout.module';
 import { GalleryModule } from '../shared/gallery/gallery.module';
 import { InputFileModule } from '../shared/image-upload/input-file.module';
@@ -36,6 +38,7 @@ const config: InputFileConfig = {
     ManageComponent
   ],
   providers: [
+    RootAlbumAllResolver,
     {
       provide: MATERIAL_SANITY_CHECKS,
       useValue: false

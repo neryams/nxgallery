@@ -1,5 +1,7 @@
 import { AuthGuard } from '@ngx-auth/core';
 
+import { RootAlbumAllResolver } from '../framework/images/image.resolvers';
+
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { LoginComponent } from './login/login.component';
 import { ManageComponent } from './manage.component';
@@ -28,6 +30,9 @@ export const routes = [
             title: 'PUBLIC.SECURE.PAGE_TITLE',
             description: 'PUBLIC.SECURE.META_DESCRIPTION'
           }
+        },
+        resolve: {
+          rootAlbum: RootAlbumAllResolver
         }
       }
     ]
