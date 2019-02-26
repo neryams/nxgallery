@@ -29,12 +29,12 @@ t.describe('layout: MainComponent', () => {
 
   t.it(
     'should invoke `onActivate`',
-    t.inject([ElementRef], (scrollContainer: ElementRef) => {
+    t.inject([ElementRef], () => {
       const fixture = TestBed.createComponent(MainComponent);
       const instance = fixture.componentInstance;
       fixture.detectChanges();
 
-      instance.onActivate(undefined, scrollContainer);
+      instance.onActivate(undefined);
 
       t.e(instance).toBeTruthy();
     })

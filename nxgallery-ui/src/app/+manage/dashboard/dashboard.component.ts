@@ -2,16 +2,21 @@ import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@an
 import { BehaviorSubject } from 'rxjs';
 import * as uuidV4 from 'uuid/v4';
 import { ImagePosition, LoadingImage } from '~/app/shared/gallery/gallery.component';
+import { appConfig } from '~/environments/environment';
 
 import { ImageService } from '../../framework/images/image.service';
 import { InputFile } from '../../shared/image-upload/interfaces/input-file';
 
 import { IImageDocument } from './../../../../../shared/interfaces/imageData';
 
-export interface UploadProgress extends LoadingImage {
+export interface UploadingImage extends LoadingImage {
   inputFile: InputFile;
   progress: BehaviorSubject<number>;
   newPosition?: { x: number, y: number };
+}
+
+interface UploadedOrExistingImage extends IImageDocument {
+  dbId?: string
 }
 
 @Component({
@@ -22,8 +27,8 @@ export interface UploadProgress extends LoadingImage {
 export class DashboardComponent implements OnInit {
   @ViewChild('imageGrid') imageGrid: ElementRef;
 
-  uploadsInProgress: Array<UploadProgress>;
-  images: Array<IImageDocument & { dbId?: string }>;
+  uploadsInProgress: Array<UploadingImage>;
+  images: Array<UploadedOrExistingImage>;
   checkChangesTimeout: number;
 
   constructor(private readonly imageService: ImageService, private readonly ref: ChangeDetectorRef) {
@@ -69,17 +74,23 @@ export class DashboardComponent implements OnInit {
     const containerBoundingBox = this.imageGrid.nativeElement.getBoundingClientRect();
     // Collect all the updated images and save the new positions to the databse
     const payload = imagePositions
-      .map<ImagePosition>(newImageInfo => {
+      .map<ImagePosition>((newImageInfo: ImagePosition) => {
         const savedImage = this.images.find(image => image._id === newImageInfo._id);
         // Store x/y position as ratio of width so we can scale the image positions programattically
         // and responsively for smaller screens
+
+        // We want to save the images without a gutter for consistency
+        const column = Math.floor(newImageInfo.position.x / containerBoundingBox.width * appConfig.gallery.columns);
+        const gutterFix = appConfig.gallery.gutter * column / appConfig.gallery.columns;
+
         const newImagePosition = {
-          x: newImageInfo.position.x / containerBoundingBox.width,
+          x: (newImageInfo.position.x - gutterFix) / containerBoundingBox.width,
           y: newImageInfo.position.y / containerBoundingBox.width
         }
         
-        if (savedImage && 
-          (!savedImage.info.position || 
+        if (savedImage &&
+          (!savedImage.info.position ||
+            savedImage.sortOrder !== newImageInfo.sortOrder ||
             savedImage.info.position.x !== newImagePosition.x ||
             savedImage.info.position.y !== newImagePosition.y
           )
@@ -89,6 +100,7 @@ export class DashboardComponent implements OnInit {
 
           return {
             _id: savedImage.dbId || savedImage._id,
+            sortOrder: newImageInfo.sortOrder,
             position: newImagePosition
           };
         } else {
@@ -112,6 +124,16 @@ export class DashboardComponent implements OnInit {
           unsavedImage.newPosition = newImageInfo.position;
         }
       })
+  }
+
+  saveImageInfo(image: UploadedOrExistingImage): void {
+    this.imageService.saveImageInfo(image.dbId || image._id, {
+      caption: image.info.caption
+    }).subscribe(() => {
+      // do nothing on success, no need
+    }, (err) => {
+      console.error(err);
+    });
   }
 
   private executeNextUpload(): void {

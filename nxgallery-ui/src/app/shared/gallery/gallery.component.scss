@@ -1,7 +1,68 @@
 @import '~src/assets/sass/mixin/gallery';
 
+.grid {
+  @include grid();
+
+  .grid-sizer {
+    @include grid-item(3);
+  }
+  .gutter-sizer {
+    @include grid-gutter();
+  }
+}
+
 .grid-item {
-  @include grid-item();
+  @include grid-item(3);
+
+  .image-settings {
+    display: none;
+    width: 95%;
+    margin: 15px auto;
+
+    .mat-card-header {
+      margin: -16px;
+      margin-bottom: 16px;
+      background: #efefef;
+      border-radius: 4px 4px 0 0;
+
+      ::ng-deep {
+        .mat-card-header-text {
+          margin-top: 16px;
+        }
+      }
+    }
+
+    .mat-form-field {
+      width: 100%;
+    }
+  }
+
+  &.editing {
+    transition-property: top, left, width, height;
+    transition-duration: 0.25s;
+    transition-timing-function: ease;
+    position: fixed;
+    z-index: 100;
+    top: 0;
+    left: 0 !important;
+    width: 100% !important;
+    touch-action: initial !important;
+    background: transparent;
+
+    .spacer {
+      display: none;
+    }
+
+    img {
+      position: static;
+      height: auto;
+      width: 100%;
+    }
+
+    .image-settings {
+      display: block;
+    }
+  }
 
   img {
     position: absolute;
@@ -9,6 +70,38 @@
     width: 100%;
     left: 0;
     top: 0;
+    user-select: none;
+  }
+
+  @media only screen and (min-width: 750px) {
+    &.editing {
+      .image-settings {
+        width: 350px;
+        position: absolute;
+        right: 0;
+        margin: 0;
+      }
+
+      img {
+        position: absolute;
+        height: auto;
+        width: 60%;
+        max-width: 600px;
+        margin-bottom: 100px;
+      }
+    }
+  }
+
+  @media only screen and (min-width: 1150px) {
+    &.editing {
+      left: 100px;
+    }
+  }
+
+  @media only screen and (min-width: 1250px) {
+    &.editing {
+      left: 200px;
+    }
   }
 
   .loading-overlay {
@@ -22,4 +115,8 @@
     justify-content: center;
     padding: 20px;
   }
+}
+
+.overlay {
+  @include overlay();
 }

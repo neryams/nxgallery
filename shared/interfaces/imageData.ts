@@ -13,6 +13,7 @@ export interface IImageDocument extends ImageData {
 
 export interface ImageInfo {
   aspect?: number;
+  caption?: string;
   position?: { x: number; y: number };
   created?: number;
   orientation?: number;

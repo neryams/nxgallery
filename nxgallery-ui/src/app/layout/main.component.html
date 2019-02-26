@@ -1,6 +1,6 @@
 ﻿<div fxLayout="column" fxFlex>
     <nxg-header></nxg-header>
-    <div class="main" id="scrollContainer" #scrollContainer [perfectScrollbar]>
-        <router-outlet (activate)="onActivate($event, scrollContainer)"></router-outlet>
+    <div class="main">
+        <router-outlet (activate)="onActivate($event)"></router-outlet>
     </div>
 </div>

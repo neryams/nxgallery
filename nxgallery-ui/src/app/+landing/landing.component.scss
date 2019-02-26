@@ -2,7 +2,6 @@
 
 .grid {
   @include grid();
-  padding-left: $gutter-size;
 
   > * {
     position: relative;
@@ -10,12 +9,75 @@
 }
 
 .grid-item {
-  @include grid-item();
+  @include grid-item(3);
 
   position: absolute;
 
   img {
     width: 100%;
     display: block;
+    object-fit: contain;
+    object-position: top;
   }
+  .caption {
+    display: none;
+    width: 0;
+    transition-property: width;
+    transition-duration: 0.25s;
+    transition-timing-function: ease;
+  }
+
+  &.display-detail {
+    z-index: 10;
+    background: transparent;
+    display: flex;
+    align-items: flex-start;
+    pointer-events: none;
+    width: 100%;
+    transition-property: top, left, width, height;
+    transition-duration: 0.25s;
+    transition-timing-function: ease;
+    flex-direction: column;
+
+    img {
+      width: 100%;
+      flex: 1 1 50%;
+    }
+    .image-container {
+      flex: 0 1 auto;
+      width: 100%;
+      position: relative;
+    }
+    .caption {
+      display: block;
+      flex: 1 1 auto;
+      width: 100%;
+      background: white;
+      padding: 15px;
+      margin-bottom: 3px;
+    }
+
+    @media only screen and (min-width: 800px) {
+      flex-direction: row;
+
+      img {
+        height: 100%;
+      }
+      .image-container {
+        height: 100%;
+        width: auto;
+        flex: 1 1 auto;
+      }
+      .caption {
+        flex: 0 1 auto;
+        width: 300px;
+        margin-left: 20px;
+        border-radius: 4px;
+      }
+    }
+  }
+}
+
+.overlay {
+  @include overlay();
 }

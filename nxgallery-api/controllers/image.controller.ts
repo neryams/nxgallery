@@ -66,6 +66,14 @@ export class ImageController {
     })
   }
 
+  saveImageInfo(req: Request, res: Response) {
+    this.imageDatabase.saveImageInfo(req.params.id, req.body).then(result => {
+      res.json(true);
+    }, (err) => {
+      res.status(500).json({ message: 'Could not update image info', err: err });
+    })
+  }
+
   upload(req: Request, res: Response) {
     let fileHandlerUploader = fileHandler.single('image');
 

@@ -9,9 +9,7 @@ import { IImageDocument, ImageData } from './../../../../../shared/interfaces/im
 export class ImageService {
   constructor(private readonly http: HttpClient) {}
 
-  getImages(page = 1): Observable<Array<IImageDocument>> {
-    const perPage = 12;
-
+  getImages(page = 1, perPage = 18): Observable<Array<IImageDocument>> {
     return this.http.get<{ images: Array<IImageDocument> }>(`/api/image/getBySort/${perPage},${page}`).pipe(map(value => value.images));
   }
 
@@ -20,7 +18,11 @@ export class ImageService {
   }
 
   saveImagePositions(data: Array<{ _id: string; position: { x: number; y: number } }>): Observable<boolean> {
-    return this.http.post<boolean>(`/api/image/updatePositions`, data);
+    return this.http.put<boolean>(`/api/image/positions`, data);
+  }
+
+  saveImageInfo(id: string, data: { caption: string }): Observable<boolean> {
+    return this.http.put<boolean>(`/api/image/${id}/info`, data);
   }
 
   /**

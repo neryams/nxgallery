@@ -22,7 +22,9 @@ const imageSchema = new Schema({
   sortOrder: Number,
   uploaded: Date,
   created: Date,
+  tags: [String],
   info: {
+    caption: String,
     aspect: Number,
     position: {
       x: Number,
@@ -63,10 +65,19 @@ export class ImageDatabase extends BaseDatabase {
     return this.getImages({ sortOrder: 'desc' }, pageSize, index);
   }
 
-  saveImagePositions(data: Array<{ _id: string, position: { x: number, y: number } }>) {
+  saveImagePositions(data: Array<{ _id: string, sortOrder: number, position: { x: number, y: number } }>) {
     return data.map(image => {
-      return Image.updateOne({ _id: image._id}, { $set: { 'info.position': image.position }}).exec();
+      return Image.updateOne({ _id: image._id}, { $set: {
+        'info.position': image.position,
+        'sortOrder': image.sortOrder
+      }}).exec();
     })
+  }
+
+  saveImageInfo(_id: string, { caption }: { caption: string}) {
+    return Image.updateOne({ _id: _id}, { $set: {
+      'info.caption': caption
+    }}).exec();
   }
 
   saveImageData(data: ImageData) {

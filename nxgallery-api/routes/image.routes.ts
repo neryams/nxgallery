@@ -29,8 +29,12 @@ class ImageRoutes {
       (req: express.Request, res: express.Response) => imageController.getImages(req, res).all()
     );
 
-    this.router.post('/updatePositions', jwt({secret: config.get('JWT_SECRET')}),
+    this.router.put('/positions', jwt({secret: config.get('JWT_SECRET')}),
       (req: express.Request, res: express.Response) => imageController.updatePositions(req, res),
+    );
+
+    this.router.put('/:id/info', jwt({secret: config.get('JWT_SECRET')}),
+      (req: express.Request, res: express.Response) => imageController.saveImageInfo(req, res),
     );
 
     this.router.post('/upload', jwt({secret: config.get('JWT_SECRET')}),
