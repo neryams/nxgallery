@@ -12,16 +12,20 @@ class UsersRoutes {
   }
 
   private config(): void {
-    this.router.get('/currentUser', jwt({secret: config.get('JWT_SECRET')}), (req: express.Request, res: express.Response) =>
-      res.json(req['user'])
-    );
-
     this.router.post('/setup', (req: express.Request, res: express.Response) =>
       usersController.setup(req, res)
     );
 
     this.router.post('/authenticate', (req: express.Request, res: express.Response) =>
       usersController.authenticate(req, res)
+    );
+
+    this.router.get('/currentUser', jwt({secret: config.get('JWT_SECRET')}), (req: express.Request, res: express.Response) =>
+      res.json(req['user'])
+    );
+
+    this.router.post('/uploadTheme', jwt({secret: config.get('JWT_SECRET')}), (req: express.Request, res: express.Response) =>
+      usersController.uploadTheme(req, res)
     );
   }
 }

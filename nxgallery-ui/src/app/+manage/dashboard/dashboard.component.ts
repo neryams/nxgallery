@@ -1,9 +1,10 @@
-import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import * as uuidV4 from 'uuid/v4';
 import { ImagePosition, LoadingImage } from '~/app/shared/gallery/gallery.component';
-import { appConfig } from '~/environments/environment';
+import { appConfig, environmentConfig } from '~/environments/environment';
 
 import { ImageService } from '../../framework/images/image.service';
 import { InputFile } from '../../shared/image-upload/interfaces/input-file';
@@ -28,12 +29,14 @@ interface UploadedOrExistingImage extends IImageDocument {
 export class DashboardComponent implements AfterViewInit {
   @ViewChild('imageGrid') imageGrid: ElementRef;
 
+  themeCss: string;
   album: IAlbumDocument;
   uploadsInProgress: Array<UploadingImage>;
   images: Array<UploadedOrExistingImage>;
   checkChangesTimeout: number;
 
   constructor(
+    public sanitizer: DomSanitizer,
     private readonly route: ActivatedRoute,
     private readonly imageService: ImageService, 
     private readonly ref: ChangeDetectorRef
@@ -45,6 +48,9 @@ export class DashboardComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     if (this.route.snapshot.data.rootAlbum !== undefined) {
       this.album = this.route.snapshot.data.rootAlbum;
+      if (this.album.settings.theme) {
+        this.themeCss = `${this.album.settings.theme}/${environmentConfig.THEME_STRUCTURE.MAIN_CSS}`;
+      }
       this.images = this.album.images;
       this.ref.detectChanges();
     }

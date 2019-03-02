@@ -1,5 +1,8 @@
 export interface Album {
   user: string;
+  settings: {
+    theme: string
+  },
   images: Array<IImageDocument>;
 }
 

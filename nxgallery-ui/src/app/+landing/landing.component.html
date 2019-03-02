@@ -1,3 +1,5 @@
+<link *ngIf="themeCss" rel="stylesheet" [href]='sanitizer.bypassSecurityTrustResourceUrl(themeCss)'>
+
 <div class="grid" #imageGrid>
   <div
     infiniteScroll

@@ -4,6 +4,7 @@
 /.cache
 */dist
 uploads
+themes/custom
 /docs
 
 # dependencies

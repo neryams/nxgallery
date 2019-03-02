@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import * as config from 'config';
+import * as multer from 'multer';
 
 import { UsersDatabase } from './../models/users.model';
 import { User, ErrorCodes } from './../../shared';
@@ -10,6 +11,20 @@ export interface UserAuthInput {
   password: string,
   email?: string
 }
+
+import { TemplateStorage, FileStreamOutputResult } from '../helpers/TemplateStorage';
+
+const templateStorage = new TemplateStorage();
+
+const limits = {
+  files: 1, // allow only 1 file per request
+  fileSize: config.get('MAX_UPLOAD_SIZE'),
+};
+
+export const templateHandler = multer({
+  storage: templateStorage,
+  limits: limits
+});
 
 export class UsersController {
   usersDatabase: UsersDatabase;
@@ -54,6 +69,29 @@ export class UsersController {
         res.status(500).json({ message: 'Error logging you in.', err: err });
       }
     })
+  }
+
+  uploadTheme(req: Request, res: Response) {
+    let fileHandlerUploader = templateHandler.single('theme');
+
+    fileHandlerUploader(req, res, (err) => {
+      if(err) {
+        res.status(500).send({ message: 'Could not generate images', err: err });
+      } else {
+        const file = <Express.Multer.File & FileStreamOutputResult> req.file;
+        console.log(file.destination);
+    
+        this.usersDatabase.setTheme(req['user'], file.destination).then((result) => {
+          res.json(result);
+        }, (err: any) => {
+          if (err.message === ErrorCodes.albumNotFound.code) {
+            res.status(ErrorCodes.albumNotFound.status).json(ErrorCodes.albumNotFound);
+          } else {
+            res.status(500).send({ message: 'Could not save image data', err: err });
+          }
+        });
+      }
+    });
   }
 }
 

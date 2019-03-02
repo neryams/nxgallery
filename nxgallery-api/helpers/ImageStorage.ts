@@ -7,7 +7,7 @@ import * as exifReader from 'exif-reader';
 import { pseudoRandomBytes, createHash } from 'crypto';
 import { existsSync, unlink, writeFile } from 'fs';
 import { join } from 'path';
-import { resolve } from 'url';
+import { resolve as urlResolve } from 'url';
 import * as config from 'config';
 
 import { ImageInfo } from '../../shared';
@@ -17,7 +17,6 @@ export interface FileStreamOutputResult {
   destination: string;
   filename: string;
   thumbFilePaths: { [key: number]: string };
-  storage: Options['storage'];
   imageInfo: ImageInfo;
 }
 
@@ -26,14 +25,12 @@ const allowedOutputFormats = ['jpg', 'png'];
 
 // fallback for the options
 interface Options {
-  storage?: 'local';
   output?: 'jpg' | 'png';
   greyscale?: boolean,
   quality?: number,
   square?: boolean
 }
 const defaultOptions: Options = {
-  storage: 'local',
   output: 'png',
   greyscale: false,
   quality: 70,
@@ -55,11 +52,6 @@ export class ImageStorage implements multer.StorageEngine {
         case 'square':
         case 'greyscale':
         
-        case 'storage':
-          parsedValue = String(value).toLowerCase();
-          object[key] = _.includes(allowedStorageSystems, parsedValue) ? parsedValue : defaultOptions[key];
-          break;
-        
         case 'output':
           parsedValue = String(value).toLowerCase();
           object[key] = _.includes(allowedOutputFormats, parsedValue) ? parsedValue : defaultOptions[key];
@@ -76,15 +68,17 @@ export class ImageStorage implements multer.StorageEngine {
           break;
       }
     });
-      
-    // set the upload paths
-    this.uploadPath = getAbsolutePath(config.get('LOCAL_STORAGE'));
-    this.uploadPathOriginal = getAbsolutePath(config.get('LOCAL_ORIGINAL_STORAGE'));
     
-    if (this.options.storage == 'local') {
+    if (config.get('STORAGE_MODEL') === 'local') {
+      // set the upload paths
+      this.uploadPath = getAbsolutePath(config.get('LOCAL_STORAGE'));
+      this.uploadPathOriginal = getAbsolutePath(config.get('LOCAL_ORIGINAL_STORAGE'));
+
       // if upload path does not exist, create the upload path structure
       !existsSync(this.uploadPath) && mkdirp.sync(this.uploadPath);
       !existsSync(this.uploadPathOriginal) && mkdirp.sync(this.uploadPathOriginal);
+    } else {
+      throw('No valid storage model selected.')
     }
   }
 
@@ -116,7 +110,6 @@ export class ImageStorage implements multer.StorageEngine {
     delete file.filename;
     delete file.destination;
     delete file.baseUrl;
-    delete file.storage;
 
     pathsplit = filePath.split('/');
     matches = !!pathsplit.pop().match(/^(.+?)_.+?\.(.+)$/i);
@@ -194,7 +187,7 @@ export class ImageStorage implements multer.StorageEngine {
           
           // create the complete filepath and create a writable stream for it
           let thumbFilename = filename + '_' + size + '.' + this.options.output;
-          thumbFilepaths[size] = resolve(config.get('LOCAL_UPLOADS_BASE_URL'), thumbFilename);
+          thumbFilepaths[size] = urlResolve(config.get('LOCAL_UPLOADS_BASE_URL'), thumbFilename);
           
           return resizedImage.toFile(join(this.uploadPath, thumbFilename));
         });
@@ -214,7 +207,6 @@ export class ImageStorage implements multer.StorageEngine {
           destination: this.uploadPath,
           filename: baseFileName,
           thumbFilePaths: thumbFilepaths,
-          storage: this.options.storage,
           imageInfo: imageInfo
         }));
       });

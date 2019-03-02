@@ -49,15 +49,18 @@ imageSchema.pre('save', function(next) {
       next();
     })
     .catch(function(error) {
-      console.error("counter error", error);
+      console.error('counter error', error);
       throw error;
     });
 });
 const Image = createModel<IImageDocument>('Image', imageSchema);
 
 const albumSchema = new Schema({
-  user: { type: Types.ObjectId, ref: 'User' },
+  owner: { type: Types.ObjectId, ref: 'User' },
   parent: { type: Types.ObjectId, ref: 'Album' },
+  settings: {
+    theme: String
+  },
   images: [ imageSchema ]
 });
 export const AlbumModel = createModel<IAlbumDocument>('Album', albumSchema);

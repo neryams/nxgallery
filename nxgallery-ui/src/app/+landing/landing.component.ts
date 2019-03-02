@@ -1,9 +1,10 @@
 
 import { isPlatformBrowser } from '@angular/common';
 import { ChangeDetectorRef, Component, ElementRef, HostListener, Inject, OnInit, PLATFORM_ID, Renderer2, ViewChild } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { IAlbumDocument, IImageDocument } from '~/../../shared';
-import { appConfig } from '~/environments/environment';
+import { appConfig, environmentConfig } from '~/environments/environment';
 
 import { ImageService } from '../framework/images/image.service';
 
@@ -33,7 +34,7 @@ interface DisplayImage {
 export class LandingComponent implements OnInit {
   @ViewChild('imageGrid') imageGrid: ElementRef;
   @ViewChild('overlay') overlay: ElementRef;
-
+  themeCss: string;
   galleryWidth: number;
   galleryPosition: { x: number, y: number }
 
@@ -78,6 +79,7 @@ export class LandingComponent implements OnInit {
   }
 
   constructor(
+    public sanitizer: DomSanitizer,
     private readonly route: ActivatedRoute,
     private readonly imageService: ImageService, 
     private readonly ref: ChangeDetectorRef,
@@ -105,6 +107,9 @@ export class LandingComponent implements OnInit {
     }
     if (this.route.snapshot.data.rootAlbum !== undefined) {
       this.album = this.route.snapshot.data.rootAlbum;
+      if (this.album.settings.theme) {
+        this.themeCss = `${this.album.settings.theme}/${environmentConfig.THEME_STRUCTURE.MAIN_CSS}`;
+      }
       this.processImages(this.album.images);
     }
   }

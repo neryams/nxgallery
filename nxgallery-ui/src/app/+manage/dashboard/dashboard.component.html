@@ -1,3 +1,5 @@
+<link *ngIf="themeCss" rel="stylesheet" [href]='sanitizer.bypassSecurityTrustResourceUrl(themeCss)'>
+
 <nxg-header></nxg-header>
 
 <nxg-input-file class="file-input" fileAccept="image/*" fileLimit="50" (acceptedFile)="upload($event)"></nxg-input-file>

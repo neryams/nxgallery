@@ -22,6 +22,7 @@ app.use(cookieParser());
 app.use(express.static(join(__dirname, 'dist')));
 
 app.use('/images', express.static(getAbsolutePath(config.get('LOCAL_STORAGE'))));
+app.use('/themes', express.static(getAbsolutePath(config.get('LOCAL_THEME_STORAGE'))));
 
 app.use('/api/image', imageRouter);
 app.use('/api/users', usersRouter);

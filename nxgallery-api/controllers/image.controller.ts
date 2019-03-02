@@ -12,7 +12,7 @@ import { ImageStorage } from '../helpers/ImageStorage';
 import { ImageData, ErrorCodes } from './../../shared';
 
 // setup a new instance of the AvatarStorage engine 
-const storage = new ImageStorage({
+const imageStorage = new ImageStorage({
   quality: 90,
   output: 'jpg'
 });
@@ -23,8 +23,8 @@ const limits = {
 };
 
 // setup multer
-export const fileHandler = multer({
-  storage: storage,
+export const imageHandler = multer({
+  storage: imageStorage,
   limits: limits,
   fileFilter: (req, file, cb) => {
     // supported image file mimetypes
@@ -90,7 +90,7 @@ export class ImageController {
   }
 
   upload(req: Request, res: Response) {
-    let fileHandlerUploader = fileHandler.single('image');
+    let fileHandlerUploader = imageHandler.single('image');
     let albumId = req.params.albumId;
 
     fileHandlerUploader(req, res, (err) => {

@@ -1,32 +1,36 @@
-import { Album } from './../../shared/interfaces/imageData';
 import { randomBytes, createHmac } from 'crypto';
 import { Schema, Document, model as createModel } from 'mongoose';
+import { resolve as urlResolve } from 'url';
 import * as _ from 'lodash';
+import * as config from 'config';
 
 import { BaseDatabase } from './base.model';
 import { User, ErrorCodes } from './../../shared';
 import { UserAuthInput } from '../controllers/users.controller';
 import { AlbumModel } from './image.model';
 
-const DEFAULT_THEME = 'modern';
+export interface IUserDocument extends User, Document {};
 
-interface IUserDocument extends User, Document {};
+const THEMES_LIST = [{
+  id: 'modern',
+  path: 'modern'
+}];
 
 const userSchema = new Schema({
   username: String,
   email: String,
   displayName: String,
   passwordHash: String,
-  passwordSalt: String,
-  settings: {
-    theme: String
-  }
+  passwordSalt: String
 });
 const User = createModel<IUserDocument>('User', userSchema);
 
 export class UsersDatabase extends BaseDatabase {
+  themeFetchPath: string;
+
   constructor() {
     super();
+    this.themeFetchPath = config.get('LOCAL_THEMES_BASE_URL');
   }
 
   createUser(userData: UserAuthInput) {
@@ -41,15 +45,15 @@ export class UsersDatabase extends BaseDatabase {
           email: userData.email,
           displayName: userData.username,
           passwordHash: passwordData.passwordHash,
-          passwordSalt: passwordData.salt,
-          settings: {
-            theme: DEFAULT_THEME
-          }
+          passwordSalt: passwordData.salt
         } as User);
 
         return newUser.save().then((user) => {
           let newUserRootAlbum = new AlbumModel({
-            user: user._id,
+            owner: user._id,
+            settings: {
+              theme: this.getThemePath(THEMES_LIST[0])
+            },
             images: []
           });
           
@@ -71,9 +75,30 @@ export class UsersDatabase extends BaseDatabase {
       if(passwordChallenge !== userDocument.passwordHash) {
         throw(ErrorCodes.notAuthenticated.code);
       } else {
-        return _.pick(userDocument, ['username', 'email']);
+        return _.pick(userDocument, ['id', 'username', 'displayName']);
       }
     });
+  }
+
+  setTheme(user: IUserDocument, theme: string) {
+    return AlbumModel.findOneAndUpdate(
+      { parent: { $exists: false }, owner: user.id }, 
+      { 
+        $set: {
+          'settings.theme': theme
+        }
+      },
+      { new: true }
+    );
+  }
+  
+  getThemePath(targetTheme: string | typeof THEMES_LIST[0]) {
+    if (typeof targetTheme === 'string') {
+      let theme = THEMES_LIST.find(theme => theme.id === targetTheme);
+      return urlResolve(this.themeFetchPath, theme.path);
+    } else {
+      return urlResolve(this.themeFetchPath, targetTheme.path);
+    }
   }
 
   private genRandomString(length: number){
