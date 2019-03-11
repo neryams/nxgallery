@@ -1,8 +1,20 @@
 <link *ngIf="themeCss" rel="stylesheet" [href]='sanitizer.bypassSecurityTrustResourceUrl(themeCss)'>
 
-<nxg-header></nxg-header>
+<nxg-header [title]="rootAlbum.name"></nxg-header>
 
-<nxg-input-file class="file-input" fileAccept="image/*" fileLimit="50" (acceptedFile)="upload($event)"></nxg-input-file>
+<header class="dashboard-menu">
+  <ul>
+    <li>
+      <nxg-input-file class="file-input" fileAccept="image/*" fileLimit="50" (acceptedFile)="upload($event)" textAdd="Upload Images"></nxg-input-file>
+    </li>
+    <li class="menu-buttons">
+      <button (click)="openConfigDialog()" mat-raised-button color="primary">
+        <mat-icon aria-hidden="true" fontSet="fas" fontIcon="fa-cog"></mat-icon>
+        Settings
+      </button>
+    </li>
+  </ul>
+</header>
 
 <section #imageGrid class="image-grid">
   <!--<div class="progress-item" *ngFor="let item of uploadsInProgress">

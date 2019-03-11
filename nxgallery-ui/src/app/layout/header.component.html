@@ -1,5 +1,5 @@
 ﻿<header class="header">
-  <h1><a [routerLink]="['/']" aria-label="Home">Gallery</a></h1>
+  <h1><a [routerLink]="['/']" aria-label="Home">{{ title || 'Gallery' }}</a></h1>
   <nav>
     <span class="nav-group" *ngIf="!isAuthenticated">
       <a *ngIf="!isAuthenticated" class="log-in" [routerLink]="['/manage/login']">Login</a>

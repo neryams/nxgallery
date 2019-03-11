@@ -8,6 +8,7 @@ import { I18NTestingModule } from '~/app/framework/i18n/testing';
 import { ImageFrameworkTestingModule } from '~/app/framework/images/testing/image-testing.module';
 import { MaterialModule } from '~/app/framework/material/material.module';
 import { NgrxTestingModule } from '~/app/framework/ngrx/testing';
+import { MOCK_ALBUM } from '~/app/framework/settings/testing/mocks/settings-service.mock';
 import { MockComponent, t, TestingModule } from '~/app/framework/testing';
 import { HeaderComponent } from '~/app/layout/header.component';
 import { GalleryModule } from '~/app/shared/gallery/gallery.module';
@@ -28,7 +29,6 @@ describe('DashboardComponent', () => {
         GalleryModule,
         ImageFrameworkTestingModule,
         FormsModule,
-        RouterTestingModule.withRoutes([]),
         CoreTestingModule,
         AuthTestingModule,
         I18NTestingModule,
@@ -47,6 +47,7 @@ describe('DashboardComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(DashboardComponent);
     component = fixture.componentInstance;
+    component.rootAlbum = MOCK_ALBUM;
     fixture.detectChanges();
   });
 

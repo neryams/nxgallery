@@ -2,6 +2,7 @@
 
 .grid {
   @include grid();
+  margin-top: 25px;
 
   > * {
     position: relative;

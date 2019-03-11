@@ -1,4 +1,5 @@
 export interface Album {
+  name: string;
   user: string;
   settings: {
     theme: string
@@ -14,6 +15,7 @@ export interface ImageData {
   title: string,
   imageUrls: { [key: number]: string };
   sortOrder?: number;
+  tags?: Array<string>;
   uploaded: number;
   created: number; // Important that created is on the document root as it will be the primary sort 99% of the time
   info: ImageInfo

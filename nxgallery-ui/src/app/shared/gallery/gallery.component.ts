@@ -138,23 +138,24 @@ export class GalleryComponent implements OnInit, AfterViewInit, DoCheck {
 
   ngAfterViewInit(): void {
     const gridElement: HTMLElement = this.gridElem.nativeElement;
-    const gridItemElements = gridElement.querySelectorAll('.grid-item');
 
-    this.gridInst = new Packery(this.gridElem.nativeElement, {
-      columnWidth: '.grid-sizer',
-      gutter: '.gutter-sizer',
-      // do not use .grid-sizer in layout
-      itemSelector: '.grid-item',
-      percentPosition: true
-    });
+    if (gridElement) {
+      this.gridInst = new Packery(gridElement, {
+        columnWidth: '.grid-sizer',
+        gutter: '.gutter-sizer',
+        // do not use .grid-sizer in layout
+        itemSelector: '.grid-item',
+        percentPosition: true
+      });
 
-    this.gridInst.on('layoutComplete', (laidOutItems: Array<PackeryItemMock>) => {
-      this.imagesChangedSubject.next(laidOutItems.map(item => this.packeryItemToImagePosition(item)));
-    });
+      this.gridInst.on('layoutComplete', (laidOutItems: Array<PackeryItemMock>) => {
+        this.imagesChangedSubject.next(laidOutItems.map(item => this.packeryItemToImagePosition(item)));
+      });
 
-    this.gridInst.on('dragItemPositioned', (item: PackeryItemMock) => {
-      this.imagesChangedSubject.next([this.packeryItemToImagePosition(item)]);
-    });
+      this.gridInst.on('dragItemPositioned', (item: PackeryItemMock) => {
+        this.imagesChangedSubject.next([this.packeryItemToImagePosition(item)]);
+      });
+    }
   }
 
   editImageDetails(galleryItem: GalleryItem, imageElement: HTMLElement): void {

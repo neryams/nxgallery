@@ -1,9 +1,35 @@
 @import '~src/assets/sass/mixin/gallery';
+@import '~src/assets/sass/func/color';
 
 .image-grid {
   @include grid();
+  margin-top: 25px;
 }
 
 .file-input {
-  position: absolute;
+  margin: 20px auto;
+  width: 300px;
+  display: block;
+  font-size: 14pt;
+}
+
+.dashboard-menu {
+  background: c(gray, concrete);
+
+  ul {
+    max-width: 1000px;
+    padding: 0;
+    margin: 0 auto;
+    list-style-type: none;
+    display: flex;
+    align-items: center;
+
+    li.menu-buttons {
+      flex: 1 0 auto;
+
+      button {
+        float: right;
+      }
+    }
+  }
 }
