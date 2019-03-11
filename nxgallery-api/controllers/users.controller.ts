@@ -76,8 +76,13 @@ export class UsersController {
 
     fileHandlerUploader(req, res, (err) => {
       if(err) {
-        res.status(500).send({ message: 'Could not generate images', err: err });
+        res.status(500).send({ message: 'Could not upload theme', err: err });
       } else {
+        if(!req['user']) {
+          res.status(401).send({ message: 'Could not save image data', err: err });
+          return;
+        }
+
         const file = <Express.Multer.File & FileStreamOutputResult> req.file;
         console.log(file.destination);
     

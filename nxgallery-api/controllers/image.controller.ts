@@ -89,6 +89,14 @@ export class ImageController {
     })
   }
 
+  saveAlbumInfo(req: Request, res: Response) {
+    this.imageDatabase.saveAlbumInfo(req.params.albumId, req.body).then(result => {
+      res.json(result);
+    }, (err) => {
+      res.status(500).json({ message: 'Could not update album info', err: err });
+    })
+  }
+
   upload(req: Request, res: Response) {
     let fileHandlerUploader = imageHandler.single('image');
     let albumId = req.params.albumId;

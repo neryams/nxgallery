@@ -33,12 +33,17 @@ class ImageRoutes {
     this.router.get('/manage/root', jwt({secret: config.get('JWT_SECRET')}),
       (req: express.Request, res: express.Response) => imageController.getAlbum(req, res)
     );
+
     this.router.get('/manage/:albumId', jwt({secret: config.get('JWT_SECRET')}),
       (req: express.Request, res: express.Response) => imageController.getAlbum(req, res)
     );
 
     this.router.put('/manage/:albumId/positions', jwt({secret: config.get('JWT_SECRET')}),
       (req: express.Request, res: express.Response) => imageController.updatePositions(req, res),
+    );
+
+    this.router.put('/manage/:albumId/info', jwt({secret: config.get('JWT_SECRET')}),
+      (req: express.Request, res: express.Response) => imageController.saveAlbumInfo(req, res),
     );
 
     this.router.put('/manage/:albumId/:id/info', jwt({secret: config.get('JWT_SECRET')}),

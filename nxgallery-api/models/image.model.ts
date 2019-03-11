@@ -56,6 +56,7 @@ imageSchema.pre('save', function(next) {
 const Image = createModel<IImageDocument>('Image', imageSchema);
 
 const albumSchema = new Schema({
+  name: String,
   owner: { type: Types.ObjectId, ref: 'User' },
   parent: { type: Types.ObjectId, ref: 'Album' },
   settings: {
@@ -70,28 +71,58 @@ export class ImageDatabase extends BaseDatabase {
     super();
   }
 
-  getAlbum(albumId: string, pageSize?: number) {
+  getAlbum(albumId: string, pageSize?: number): Promise<IAlbumDocument> {
     if (typeof pageSize !== 'undefined') {
-      return AlbumModel.findById(albumId, { images: { $slice: pageSize } });
+      return AlbumModel.aggregate()
+        .match({ _id: albumId })
+        .unwind('images')
+        .sort({ 'images.sortOrder': 'desc' })
+        .limit(pageSize)
+        .group({ _id: '$_id', images: { $push: '$images'}, settings: { $first: '$settings' }, name: { $first: '$name' } })
+        .limit(1)
+        .exec()
+        .then(result => result[0]);
     } else {
-      return AlbumModel.findById(albumId);
+      return AlbumModel.aggregate()
+        .match({ _id: albumId })
+        .unwind('images')
+        .sort({ 'images.sortOrder': 'desc' })
+        .group({ _id: '$_id', images: { $push: '$images'}, settings: { $first: '$settings' }, name: { $first: '$name' } })
+        .limit(1)
+        .exec()
+        .then(result => result[0]);
     }
   }
 
-  getRootAlbum(pageSize?: number) {
+  getRootAlbum(pageSize?: number): Promise<IAlbumDocument> {
     if (typeof pageSize !== 'undefined') {
-      return AlbumModel.findOne({ parent: { $exists: false } }, { images: { $slice: pageSize } });
+      return AlbumModel.aggregate()
+        .match({ parent: { $exists: false } })
+        .unwind('images')
+        .sort({ 'images.sortOrder': 'desc' })
+        .limit(pageSize)
+        .group({ _id: '$_id', images: { $push: '$images'}, settings: { $first: '$settings' }, name: { $first: '$name' } })
+        .limit(1)
+        .exec()
+        .then(result => result[0]);
     } else {
-      return AlbumModel.findOne({ parent: { $exists: false } });
+      return AlbumModel.aggregate()
+        .match({ parent: { $exists: false } })
+        .unwind('images')
+        .sort({ 'images.sortOrder': 'desc' })
+        .group({ _id: '$_id', images: { $push: '$images'}, settings: { $first: '$settings' }, name: { $first: '$name' } })
+        .limit(1)
+        .exec()
+        .then(result => result[0]);
     }
   }
 
   getImagesByCreated(albumId: string, pageSize: number, index: number) {
-    return this.getImages(albumId, { created: 'desc' }, pageSize, index);
+    return this.getImages(albumId, { 'created': 'desc' }, pageSize, index);
   }
 
   getImagesBySort(albumId: string, pageSize: number, index: number) {
-    return this.getImages(albumId, { sortOrder: 'desc' }, pageSize, index);
+    return this.getImages(albumId, { 'sortOrder': 'desc' }, pageSize, index);
   }
 
   saveImagePositions(albumId: string, data: Array<{ _id: string, sortOrder: number, position: { x: number, y: number } }>) {
@@ -119,20 +150,31 @@ export class ImageDatabase extends BaseDatabase {
     ).exec();
   }
 
-  saveImageData(data: ImageData, albumId?: string) {
+  saveAlbumInfo(albumId: string, { name, settings }: Partial<{ name: string, settings: { theme: string }}>) {
+    const payload: any = {};
+    if (name) {
+      payload['name'] = name;
+    }
+    if (settings && settings.theme) {
+      payload['settings.theme'] = settings.theme
+    }
+
+    return AlbumModel.findOneAndUpdate(
+      { '_id': albumId },
+      { 
+        $set: payload
+      },
+      { new: true }
+    ).exec();
+  }
+
+  saveImageData(data: ImageData, albumId: string) {
     const saveData = _.extend({}, data);
     let image = new Image(saveData);
 
-    // Figure out what album to save the image into
-    let albumQuery: DocumentQuery<IAlbumDocument, IAlbumDocument>;
-    if (typeof albumId !== 'undefined') {
-      albumQuery = this.getAlbum(albumId);
-    } else {
-      // Save in the root album by default
-      albumQuery = this.getRootAlbum();
-    }
-
-    return albumQuery.findOneAndUpdate(
+    // to fetch the root album, use AlbumModel.findOneAndUpdate({ parent: { $exists: false } }, { $push: { images: image } });
+    return AlbumModel.findOneAndUpdate(
+      { '_id': albumId },
       { $push: { images: image } },
     ).then((album) => {
       if(!album || !album.toObject()) {
@@ -150,11 +192,11 @@ export class ImageDatabase extends BaseDatabase {
     let query: Query<any>;
 
     if(pageSize === null) {
-      query = AlbumModel.findById(albumId, { images: 1 })
-        .sort(sort).select('-info.exif -info.deviceInfo').lean();
+      query = AlbumModel.findById(albumId, { images: { $sort: sort } })
+        .select('-info.exif -info.deviceInfo').lean();
     } else {
-      query = AlbumModel.findById(albumId, { images: { $slice: pageSize, $skip: index } })
-        .sort(sort).select('-info.exif -info.deviceInfo').lean();
+      query = AlbumModel.findById(albumId, { images: { $sort: sort, $slice: pageSize, $skip: index } })
+        .select('-info.exif -info.deviceInfo').lean();
     }
     return query.exec();
   }

@@ -44,8 +44,6 @@ export class TemplateStorage implements multer.StorageEngine {
     // concatenate all the buffers written to it and pass the
     // complete buffer to a callback fn
     let fileManipulate = concat((themeData: Buffer) => {
-      // read the image buffer with Jimp
-      // it returns a promise
       this.processImage(user, themeName, themeData).then(info => {
         cb(null, info);
       }, err => {
@@ -59,8 +57,7 @@ export class TemplateStorage implements multer.StorageEngine {
   
   _removeFile(req: Express.Request, file: any, cb: (error: Error) => void) {
   }
-
-  // this processes the Jimp image buffer
+  
   private processImage(user: IUserDocument, themeName: string, themeData: Buffer): Promise<FileStreamOutputResult> {
     let themeStructure = config.get('THEME_STRUCTURE');
     let baseFileName = themeStructure.MAIN_CSS;

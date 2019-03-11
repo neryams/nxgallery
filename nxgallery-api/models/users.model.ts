@@ -50,6 +50,7 @@ export class UsersDatabase extends BaseDatabase {
 
         return newUser.save().then((user) => {
           let newUserRootAlbum = new AlbumModel({
+            name: `${user.displayName}'s Gallery`,
             owner: user._id,
             settings: {
               theme: this.getThemePath(THEMES_LIST[0])
