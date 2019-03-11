@@ -73,47 +73,17 @@ export class ImageDatabase extends BaseDatabase {
 
   getAlbum(albumId: string, pageSize?: number): Promise<IAlbumDocument> {
     if (typeof pageSize !== 'undefined') {
-      return AlbumModel.aggregate()
-        .match({ _id: albumId })
-        .unwind('images')
-        .sort({ 'images.sortOrder': 'desc' })
-        .limit(pageSize)
-        .group({ _id: '$_id', images: { $push: '$images'}, settings: { $first: '$settings' }, name: { $first: '$name' } })
-        .limit(1)
-        .exec()
-        .then(result => result[0]);
+      return this.getAlbumWithSortedImages({ _id: albumId }, pageSize);
     } else {
-      return AlbumModel.aggregate()
-        .match({ _id: albumId })
-        .unwind('images')
-        .sort({ 'images.sortOrder': 'desc' })
-        .group({ _id: '$_id', images: { $push: '$images'}, settings: { $first: '$settings' }, name: { $first: '$name' } })
-        .limit(1)
-        .exec()
-        .then(result => result[0]);
+      return this.getAlbumWithSortedImages({ _id: albumId });
     }
   }
 
   getRootAlbum(pageSize?: number): Promise<IAlbumDocument> {
     if (typeof pageSize !== 'undefined') {
-      return AlbumModel.aggregate()
-        .match({ parent: { $exists: false } })
-        .unwind('images')
-        .sort({ 'images.sortOrder': 'desc' })
-        .limit(pageSize)
-        .group({ _id: '$_id', images: { $push: '$images'}, settings: { $first: '$settings' }, name: { $first: '$name' } })
-        .limit(1)
-        .exec()
-        .then(result => result[0]);
+      return this.getAlbumWithSortedImages({ parent: { $exists: false } }, pageSize);
     } else {
-      return AlbumModel.aggregate()
-        .match({ parent: { $exists: false } })
-        .unwind('images')
-        .sort({ 'images.sortOrder': 'desc' })
-        .group({ _id: '$_id', images: { $push: '$images'}, settings: { $first: '$settings' }, name: { $first: '$name' } })
-        .limit(1)
-        .exec()
-        .then(result => result[0]);
+      return this.getAlbumWithSortedImages({ parent: { $exists: false } })
     }
   }
 
@@ -181,6 +151,28 @@ export class ImageDatabase extends BaseDatabase {
         throw Error(ErrorCodes.albumNotFound.code);
       }
       return image.toJSON() as IImageDocument
+    });
+  }
+
+  private getAlbumWithSortedImages(matchArg: any, pageSize?: number) {
+    return AlbumModel.findOne(matchArg, { images: { $slice: 1 } }).then(result => {
+      if (result.images.length === 0) {
+        return result;
+      }
+
+      let query = AlbumModel.aggregate()
+        .match(matchArg)
+        .unwind('images')
+        .sort({ 'images.sortOrder': 'desc' });
+      
+        if (pageSize) {
+          query = query.limit(pageSize)
+        }
+  
+        return query.group({ _id: '$_id', images: { $push: '$images'}, settings: { $first: '$settings' }, name: { $first: '$name' } })
+        .limit(1)
+        .exec()
+        .then(result => result[0]);
     });
   }
 
