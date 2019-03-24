@@ -3,8 +3,9 @@ import { Injector, NgModule } from '@angular/core';
 import { BrowserModule, makeStateKey } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { dom, library } from '@fortawesome/fontawesome-svg-core';
-import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { faCog } from '@fortawesome/free-solid-svg-icons/faCog';
+import { faEllipsisV } from '@fortawesome/free-solid-svg-icons/faEllipsisV';
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes';
 import { TransferHttpCacheModule } from '@nguniversal/common';
@@ -29,7 +30,7 @@ export const REQ_KEY = makeStateKey<string>('req');
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = { suppressScrollX: true };
 
-library.add(faCheck, faCog, faPlus, faTimes);
+library.add(faCheck, faCog, faPlus, faTimes, faEllipsisV);
 
 @NgModule({
   imports: [

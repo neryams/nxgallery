@@ -14,6 +14,12 @@
 .grid-item {
   @include grid-item(3);
 
+  .image-actions {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+  }
+
   .image-settings {
     display: none;
     width: 95%;

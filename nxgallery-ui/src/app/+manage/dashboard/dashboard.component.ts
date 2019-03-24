@@ -156,6 +156,15 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     });
   }
 
+  removeImage(imageToRemove: UploadedOrExistingImage): void {
+    this.imageService.deleteImage(this.rootAlbum._id, imageToRemove.dbId || imageToRemove._id).subscribe(() => {
+      const i = this.images.findIndex(image => image._id === imageToRemove._id);
+      this.images.splice(i, 1);
+    }, (err) => {
+      console.error(err);
+    });
+  }
+
   openConfigDialog(): void {
     const dialogRef = this.dialog.open<ConfigMenuDialogComponent, ConfigMenuResult, IAlbumDocument>(ConfigMenuDialogComponent, {
       data: {

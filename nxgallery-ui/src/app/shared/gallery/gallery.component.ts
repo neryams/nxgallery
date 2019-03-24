@@ -60,6 +60,7 @@ export class GalleryComponent implements OnInit, AfterViewInit, DoCheck {
 
   @Output() readonly movedImages = new EventEmitter();
   @Output() readonly updatedImage = new EventEmitter();
+  @Output() readonly removeImage = new EventEmitter();
   movedImagesCollection: Map<string, ImagePosition>;
   imagesChangedSubject = new Subject<Array<ImagePosition>>();
 
@@ -156,6 +157,11 @@ export class GalleryComponent implements OnInit, AfterViewInit, DoCheck {
         this.imagesChangedSubject.next([this.packeryItemToImagePosition(item)]);
       });
     }
+  }
+
+  deleteImage(galleryItem: GalleryItem): void {
+    const imageToDelete = this.images.find(inputImage => inputImage._id === galleryItem.id);
+    this.removeImage.emit(imageToDelete);
   }
 
   editImageDetails(galleryItem: GalleryItem, imageElement: HTMLElement): void {

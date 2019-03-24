@@ -89,6 +89,14 @@ export class ImageController {
     })
   }
 
+  deleteImage(req: Request, res: Response) {
+    this.imageDatabase.deleteImage(req.params.id, req.params.albumId).then(result => {
+      res.json(true);
+    }, (err) => {
+      res.status(500).json({ message: 'Could not update image info', err: err });
+    })
+  }
+
   saveAlbumInfo(req: Request, res: Response) {
     this.imageDatabase.saveAlbumInfo(req.params.albumId, req.body).then(result => {
       res.json(result);

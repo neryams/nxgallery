@@ -46,6 +46,10 @@ class ImageRoutes {
       (req: express.Request, res: express.Response) => imageController.saveAlbumInfo(req, res),
     );
 
+    this.router.delete('/manage/:albumId/:id', jwt({secret: config.get('JWT_SECRET')}),
+      (req: express.Request, res: express.Response) => imageController.deleteImage(req, res),
+    );
+
     this.router.put('/manage/:albumId/:id/info', jwt({secret: config.get('JWT_SECRET')}),
       (req: express.Request, res: express.Response) => imageController.saveImageInfo(req, res),
     );

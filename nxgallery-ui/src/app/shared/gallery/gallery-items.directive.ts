@@ -65,8 +65,10 @@ export class GalleryItemsDirective implements OnChanges {
         this.viewRefsMap.get(item.id).context.$implicit = item;
       });
       removedItems.forEach(item => {
-        // this.viewContainerRef.remove(this.templateRef);
-        // draggie.destroy()
+        const viewRef = this.viewRefsMap.get(item.id);
+        this.nxgGalleryItemsGridInst.remove(viewRef.rootNodes);
+        this.nxgGalleryItemsGridInst.shiftLayout();
+        viewRef.destroy();
       });
 
       this._items = galleryItems;

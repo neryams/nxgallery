@@ -7,7 +7,15 @@
 
     <div class="image-container">
       <img *ngIf="image.url" [attr.src]="image.url" (click)="editImageDetails(image, imageContainer)" />
-      
+      <div class="image-actions">
+        <button [matMenuTriggerFor]="imageMenu" mat-mini-fab color="secondary">
+          <mat-icon aria-label="Close image info editor" fontSet="fas" fontIcon="fa-ellipsis-v"></mat-icon>
+        </button>
+        <mat-menu #imageMenu="matMenu">
+          <button (click)="deleteImage(image)" mat-menu-item>Delete</button>
+        </mat-menu>
+      </div>
+
       <mat-card class="image-settings" 
         *ngIf="currentEditing !== undefined && currentEditing.itemElement === imageContainer">
         <mat-card-header>

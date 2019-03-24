@@ -39,6 +39,10 @@ export class ImageService {
     return this.http.put<boolean>(`/api/image/manage/${albumId}/${id}/info`, data);
   }
 
+  deleteImage(albumId: string, id: string): Observable<boolean> {
+    return this.http.delete<boolean>(`/api/image/manage/${albumId}/${id}`);
+  }
+
   /**
    * Uploads the given image file to the server and keeps track of the upload progress
    * @return Returns either the progress as a whole number between 0-100, or the saved image document on success

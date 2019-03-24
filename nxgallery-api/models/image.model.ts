@@ -120,6 +120,13 @@ export class ImageDatabase extends BaseDatabase {
     ).exec();
   }
 
+  deleteImage(_id: string, albumId: string) {
+    return AlbumModel.findOneAndUpdate(
+      { '_id': albumId },
+      { $pull: { 'images': { _id } } }
+    ).exec();
+  }
+
   saveAlbumInfo(albumId: string, { name, settings }: Partial<{ name: string, settings: { theme: string }}>) {
     const payload: any = {};
     if (name) {
