@@ -1,4 +1,4 @@
-import { IImageDocument } from './../../shared/interfaces/imageData';
+import { IImageDocument, IAlbumDocument } from './../../shared/interfaces/imageData';
 import { Document } from 'mongoose';
 import { ImageDatabase } from './../models/image.model';
 import { FileStreamOutputResult } from './../helpers/ImageStorage';
@@ -46,6 +46,14 @@ export class ImageController {
   constructor() {
     this.imageDatabase = new ImageDatabase();
   }
+
+  getAllAlbumInfo(req: Request, res: Response) {
+    this.imageDatabase.getAllAlbumInfo().then(result => {
+      res.json(result);
+    }, (err) => {
+      res.status(500).json({ message: 'Could not update image info', err: err });
+    })
+  }
   
   getAlbum(req: Request, res: Response) {
     let perPage = req.params.perPage ? parseInt(req.params.perPage, 10) : undefined;
@@ -57,7 +65,9 @@ export class ImageController {
     .then(result => {
       res.json(result);
     }, (err) => {
-      res.status(500).json({ message: 'Could not find album for user', err: err });
+      const errMsg = { message: 'Could not find album for user', err: err };
+      console.error(errMsg);
+      res.status(500).json(errMsg);
     })
   }
 
@@ -69,7 +79,7 @@ export class ImageController {
     return {
       all: () => this.getImageHandler(res, this.imageDatabase.getImagesBySort(albumId, null, 0)),
       bySort: () => this.getImageHandler(res, this.imageDatabase.getImagesBySort(albumId, perPage, (page - 1) * perPage)),
-      byCreated: () => this.getImageHandler(res, this.imageDatabase.getImagesByCreated(albumId, perPage, (page - 1) * perPage))
+      // byCreated: () => this.getImageHandler(res, this.imageDatabase.getImagesByCreated(albumId, perPage, (page - 1) * perPage))
     };
   }
 
@@ -81,8 +91,20 @@ export class ImageController {
     })
   }
 
+  setImageAsPrimary(req: Request, res: Response) {
+    this.imageDatabase.setImageAsPrimary(req.params.albumId, req.body.imageId).then(result => {
+      if(result) {
+        res.json(true);
+      } else {
+        res.status(404).json({ message: 'Could not find album or image' });
+      }
+    }, (err) => {
+      res.status(500).json({ message: 'Could not update primary image', err: err });
+    })
+  }
+
   saveImageInfo(req: Request, res: Response) {
-    this.imageDatabase.saveImageInfo(req.params.id, req.params.albumId, req.body).then(result => {
+    this.imageDatabase.saveImageInfo({ _id: req.params.id }, req.params.albumId, req.body).then(result => {
       res.json(true);
     }, (err) => {
       res.status(500).json({ message: 'Could not update image info', err: err });
@@ -93,7 +115,15 @@ export class ImageController {
     this.imageDatabase.deleteImage(req.params.id, req.params.albumId).then(result => {
       res.json(true);
     }, (err) => {
-      res.status(500).json({ message: 'Could not update image info', err: err });
+      res.status(500).json({ message: 'Could not delete image', err: err });
+    })
+  }
+
+  createAlbum(req: Request, res: Response) {
+    this.imageDatabase.createAlbum(req.params.parentAlbumId, req['user']).then(result => {
+      res.json(result);
+    }, (err) => {
+      res.status(500).json({ message: 'Could not update album info', err: err });
     })
   }
 
@@ -124,7 +154,7 @@ export class ImageController {
           info: file.imageInfo
         }
     
-        this.imageDatabase.saveImageData(response, albumId).then((result) => {
+        this.imageDatabase.addImageToAlbum(response, albumId).then((result) => {
           res.json(result);
         }, (err: any) => {
           if (err.message === ErrorCodes.albumNotFound.code) {
@@ -137,9 +167,9 @@ export class ImageController {
     });
   }
 
-  private getImageHandler(res: Response, query: Promise<IImageDocument[]>) {
+  private getImageHandler(res: Response, query: Promise<IAlbumDocument>) {
     query.then(result => {
-      res.json({ images: result });
+      res.json({ images: result.images, imageCount: result.imageCount });
     }, err =>
       res.status(500).json({ message: 'Could not fetch images', err: err })
     )

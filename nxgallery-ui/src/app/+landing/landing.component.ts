@@ -3,13 +3,15 @@ import { isPlatformBrowser } from '@angular/common';
 import { ChangeDetectorRef, Component, ElementRef, HostListener, Inject, OnInit, PLATFORM_ID, Renderer2, ViewChild } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { IAlbumDocument, IImageDocument } from '~/../../shared';
+import { AlbumInfoOnly, IAlbumDocument, IImageDocument } from '~/../../shared';
 import { appConfig, environmentConfig } from '~/environments/environment';
 
 import { ImageService } from '../framework/images/image.service';
 
 const gridColumns = appConfig.gallery.columns;
 const gridGutter = appConfig.gallery.gutter;
+
+const imagesPerpage = 18;
 
 const breakpoints = [
   { minPageWidth: 0, sideMargin: 0, topMargin: 50, fillHeight: false },
@@ -22,8 +24,9 @@ interface DisplayImage {
   url: string;
   largeFileUrl: string;
   caption: string;
-  position: { left: number; top: number, width?: number, height?: number }
-  displayDetail: boolean
+  position: { left: number; top: number, width?: number, height?: number };
+  displayDetail: boolean;
+  albumLink: string;
 }
 
 @Component({
@@ -38,7 +41,11 @@ export class LandingComponent implements OnInit {
   galleryWidth: number;
   galleryPosition: { x: number, y: number }
 
-  album: IAlbumDocument;
+  viewingAlbum: IAlbumDocument;
+  rootAlbum: AlbumInfoOnly;
+  allAlbums: Map<string, AlbumInfoOnly>;
+  breadcrumb: Array<AlbumInfoOnly>;
+
   images: Array<DisplayImage>;
   containerHeight: number;
   currPage: number;
@@ -94,6 +101,7 @@ export class LandingComponent implements OnInit {
       y: 0
     };
     this.galleryWidth = 800;
+    this.breadcrumb = [];
   }
 
   ngOnInit(): void {
@@ -105,13 +113,39 @@ export class LandingComponent implements OnInit {
       }
       this.galleryWidth = gridBoundingClientRect.width;
     }
-    if (this.route.snapshot.data.rootAlbum !== undefined) {
-      this.album = this.route.snapshot.data.rootAlbum;
-      if (this.album.settings.theme) {
-        this.themeCss = `${this.album.settings.theme}/${environmentConfig.THEME_STRUCTURE.MAIN_CSS}`;
+    
+    this.route.data.subscribe(data => {
+      if (data.allAlbums !== undefined) {
+        this.allAlbums = data.allAlbums;
+        this.allAlbums.forEach(album => {
+          if (typeof album.parent === 'undefined') {
+            this.rootAlbum = album;
+          }
+        });
+        
+        if (!this.rootAlbum) {
+          throw(new Error('root album not found'));
+        }
+  
+        if (this.rootAlbum.settings.theme) {
+          this.themeCss = `${this.rootAlbum.settings.theme}/${environmentConfig.THEME_STRUCTURE.MAIN_CSS}`;
+        }
       }
-      this.processImages(this.album.images);
-    }
+  
+      this.viewingAlbum = data.viewingAlbum || this.rootAlbum;
+      this.processImages(this.viewingAlbum.images);
+      
+      this.breadcrumb = [this.viewingAlbum]; 
+      // Iterate through the album tree until we reach the root album
+      while (true) {
+        const parentAlbum = this.allAlbums.get(this.breadcrumb[this.breadcrumb.length - 1].parent);
+        if (!parentAlbum) {
+          break;
+        }
+        this.breadcrumb.push(parentAlbum);
+      }
+      this.breadcrumb.reverse();
+    });
   }
 
   onScroll(): void {
@@ -124,7 +158,7 @@ export class LandingComponent implements OnInit {
   }
 
   openImageDetails(image: DisplayImage): void {
-    if (typeof this.currImageDetail !== 'undefined') {
+    if (image.albumLink || typeof this.currImageDetail !== 'undefined') {
       return;
     }
 
@@ -172,13 +206,15 @@ export class LandingComponent implements OnInit {
   }
 
   private getImages(page = 1): void {
-    this.imageService.getImages(this.album._id, page).subscribe(images => {
-      this.processImages(images);
-    })
+    if(!this.viewingAlbum.imageCount || this.viewingAlbum.imageCount > (page - 1) * imagesPerpage) {
+      this.imageService.getImages(this.viewingAlbum._id, page).subscribe(images => {
+        this.processImages(images);
+      })
+    }
   }
 
   private processImages(images: Array<IImageDocument>): void {
-    this.images.push(...images.map(image => {
+    this.images.push(...images.map<DisplayImage>(image => {
       if (image.info.position === undefined) {
         image.info.position = { x: 0, y: 0 };
       }
@@ -203,6 +239,7 @@ export class LandingComponent implements OnInit {
         largeFileUrl: image.imageUrls['1200'],
         caption: image.info.caption,
         position: imagePosition,
+        albumLink: image.childAlbumId,
         displayDetail: false
       }
     }));

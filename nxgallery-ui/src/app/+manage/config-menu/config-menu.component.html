@@ -10,11 +10,11 @@
   
       <form [formGroup]="gallerySettingsForm">
         <mat-form-field floatLabel="always">
-          <input matInput placeholder="Gallery Name" formControlName="galleryName">
+          <input matInput placeholder="Gallery Name" formControlName="albumName">
         </mat-form-field>
       </form>
     </mat-expansion-panel>
-    <mat-expansion-panel>
+    <mat-expansion-panel *ngIf="themeEnabled">
       <mat-expansion-panel-header>
         <mat-panel-title>
           Upload Theme File

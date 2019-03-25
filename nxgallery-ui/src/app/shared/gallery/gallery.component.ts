@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import * as Packery from 'packery';
-import { Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { debounceTime, map, tap } from 'rxjs/operators';
 import { appConfig } from '~/environments/environment';
 
@@ -22,7 +22,7 @@ import { IImageDocument } from './../../../../../shared/interfaces/imageData';
 export interface LoadingImage {
   uid: string;
   aspect: number;
-  progress: Observable<number>;
+  progress: BehaviorSubject<number>;
   preview?: string;
 }
 
@@ -37,7 +37,7 @@ export interface GalleryItem {
   id: string;
   aspect: number;
   newItem: boolean;
-  progress?: Observable<number>;
+  progress?: BehaviorSubject<number>;
 }
 
 // The packery types definition is messed up (types for old version) so we just define the real properties we use here
@@ -55,11 +55,13 @@ export class GalleryComponent implements OnInit, AfterViewInit, DoCheck {
   @Input() images: Array<IImageDocument>;
   @Input() progress: Array<LoadingImage>;
   @Input() trackBy: (input: IImageDocument) => any;
+  @Input() isRoot: boolean;
   @ViewChild('grid') gridElem: ElementRef;
   @ViewChild('overlay') overlay: ElementRef;
 
   @Output() readonly movedImages = new EventEmitter();
   @Output() readonly updatedImage = new EventEmitter();
+  @Output() readonly setImageAsPrimary = new EventEmitter();
   @Output() readonly removeImage = new EventEmitter();
   movedImagesCollection: Map<string, ImagePosition>;
   imagesChangedSubject = new Subject<Array<ImagePosition>>();
@@ -117,11 +119,12 @@ export class GalleryComponent implements OnInit, AfterViewInit, DoCheck {
       this.currentImages = this.images.map((imageData: IImageDocument) => ({
         url: imageData.imageUrls['600'],
         id: imageData._id,
+        childAlbumId: imageData.childAlbumId,
         aspect: imageData.info.aspect,
         newItem: false
       }));
 
-      if (this.progress) {
+      if (this.progress && this.progress.length > 0) {
         const currentProgress: Array<LoadingImage> = this.progress;
         this.currentImages.unshift(
           ...currentProgress
@@ -134,6 +137,9 @@ export class GalleryComponent implements OnInit, AfterViewInit, DoCheck {
             .reverse()
         );
       }
+
+      this.imagesLength = this.images.length;
+      this.progressLength = this.progress.length;
     }
   }
 
@@ -157,6 +163,11 @@ export class GalleryComponent implements OnInit, AfterViewInit, DoCheck {
         this.imagesChangedSubject.next([this.packeryItemToImagePosition(item)]);
       });
     }
+  }
+
+  setAsPrimary(galleryItem: GalleryItem): void {
+    const imageToBePrimary = this.images.find(inputImage => inputImage._id === galleryItem.id);
+    this.setImageAsPrimary.emit(imageToBePrimary);
   }
 
   deleteImage(galleryItem: GalleryItem): void {

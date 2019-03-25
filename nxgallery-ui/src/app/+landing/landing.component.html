@@ -1,5 +1,15 @@
 <link *ngIf="themeCss" rel="stylesheet" [href]='sanitizer.bypassSecurityTrustResourceUrl(themeCss)'>
 
+<ul class="breadcrumb" *ngIf="breadcrumb.length > 1">
+  <li 
+    class="breadcrumb-item" 
+    *ngFor="let album of breadcrumb; let i = index;" 
+    [routerLink]="rootAlbum._id === album._id ? ['/'] : ['/album', album._id]"
+  >
+    {{ i === 0 ? 'Home' : album.name }}
+  </li>
+</ul>
+
 <div class="grid" #imageGrid>
   <div
     infiniteScroll
@@ -8,7 +18,8 @@
     (scrolled)="onScroll()"
     [style.height.px]="containerHeight">
       <div class="grid-item" *ngFor="let image of images; trackBy: imageUUID"
-        [ngClass]="{ 'display-detail': image.displayDetail }"
+        [routerLink]="image.albumLink ? ['/album', image.albumLink]: null"
+        [ngClass]="{ 'display-detail': image.displayDetail, 'link': image.albumLink }"
         [style.top.px]="image.position.top"
         [style.left.px]="image.position.left"
         [style.width.px]="image.position.width"
@@ -17,6 +28,8 @@
         <div class="image-container">
           <img [attr.src]="image.displayDetail ? image.largeFileUrl : image.url"
             [attr.aria-describedby]="'caption_' + image.id" />
+
+          <span class="album-overlay" *ngIf="image.albumLink"><fa-icon [icon]="['fas', 'images']"></fa-icon></span>
         </div>
         <div *ngIf="image.caption" class="caption" [attr.id]="'caption_' + image.id">
           {{ image.caption }}

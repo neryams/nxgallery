@@ -1,6 +1,6 @@
 import { AuthGuard } from '@ngx-auth/core';
 
-import { RootAlbumAllResolver } from '../framework/images/image.resolvers';
+import { AlbumAllResolver, AllAlbumInfoResolver, RootAlbumAllResolver } from '../framework/images/image.resolvers';
 
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { LoginComponent } from './login/login.component';
@@ -32,7 +32,23 @@ export const routes = [
           }
         },
         resolve: {
-          rootAlbum: RootAlbumAllResolver
+          allAlbums: AllAlbumInfoResolver,
+          viewingAlbum: RootAlbumAllResolver
+        }
+      },
+      {
+        path: 'dashboard/:albumId',
+        component: DashboardComponent,
+        canActivate: [AuthGuard],
+        data: {
+          meta: {
+            title: 'PUBLIC.SECURE.PAGE_TITLE',
+            description: 'PUBLIC.SECURE.META_DESCRIPTION'
+          }
+        },
+        resolve: {
+          allAlbums: AllAlbumInfoResolver,
+          viewingAlbum: AlbumAllResolver
         }
       }
     ]

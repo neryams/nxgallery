@@ -6,6 +6,10 @@
   margin-top: 25px;
 }
 
+.breadcrumb {
+  @include breadcrumb();
+}
+
 .file-input {
   margin: 20px auto;
   width: 300px;
@@ -17,18 +21,27 @@
   background: c(gray, concrete);
 
   ul {
-    max-width: 1000px;
+    @include container();
+
     padding: 0;
-    margin: 0 auto;
     list-style-type: none;
     display: flex;
     align-items: center;
 
-    li.menu-buttons {
+    li {
+      flex: 0 1 auto;
+    }
+    li.spacer {
       flex: 1 0 auto;
+    }
 
+    li.menu-buttons {
       button {
-        float: right;
+        margin-left: 10px;
+      }
+
+      [hidden] {
+        display: none !important;
       }
     }
   }

@@ -8,9 +8,9 @@ import { InputFile } from '~/app/shared/image-upload/interfaces/input-file';
 import { IAlbumDocument } from '../../../../../shared';
 
 export interface ConfigMenuResult {
-  rootAlbumId: string;
-  galleryName: string;
-  theme: string;
+  albumId: string;
+  albumName: string;
+  themeEnabled: boolean;
 }
 
 @Component({
@@ -19,18 +19,20 @@ export interface ConfigMenuResult {
   styleUrls: ['./config-menu.component.scss']
 })
 export class ConfigMenuDialogComponent implements OnInit {
-  rootAlbumId: string;
+  albumId: string;
   gallerySettingsForm: FormGroup;
   themeFile: InputFile;
+  themeEnabled: boolean;
   
   constructor(
     public dialogRef: MatDialogRef<ConfigMenuDialogComponent, IAlbumDocument>,
     @Inject(MAT_DIALOG_DATA) public data: ConfigMenuResult,
     private settingsService: SettingsService
   ) {
-    this.rootAlbumId = this.data.rootAlbumId;
+    this.albumId = this.data.albumId;
+    this.themeEnabled = this.data.themeEnabled;
     this.gallerySettingsForm = new FormGroup({
-      galleryName: new FormControl(this.data.galleryName)
+      albumName: new FormControl(this.data.albumName)
     });
   }
 
@@ -47,7 +49,7 @@ export class ConfigMenuDialogComponent implements OnInit {
   }
 
   save(): void {
-    if (this.themeFile) {
+    if (this.themeEnabled && this.themeFile) {
       this.settingsService.uploadTheme(this.themeFile.file).subscribe((uploadResult) => {
         if (typeof uploadResult === 'number') {
           // Some progress bar stuff here later
@@ -62,8 +64,8 @@ export class ConfigMenuDialogComponent implements OnInit {
 
   submitDialog(): void {
     this.settingsService.updateAlbumSettings({
-      _id: this.rootAlbumId,
-      name: this.gallerySettingsForm.get('galleryName').value
+      _id: this.albumId,
+      name: this.gallerySettingsForm.get('albumName').value
     }).subscribe(result => {
       this.dialogRef.close(result);
     });

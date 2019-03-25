@@ -513,6 +513,12 @@
     is-absolute "^1.0.0"
     is-negated-glob "^1.0.0"
 
+"@fortawesome/angular-fontawesome@^0.3.0":
+  version "0.3.0"
+  resolved "https://npm.fontawesome.com/FE60B65A-AD94-4801-91A9-DA10F81CE124/@fortawesome/angular-fontawesome/-/angular-fontawesome-0.3.0.tgz#380492f186469ce03d6fdbb3ec719810f771bf62"
+  dependencies:
+    tslib "^1.9.0"
+
 "@fortawesome/fontawesome-common-types@^0.2.15":
   version "0.2.15"
   resolved "https://npm.fontawesome.com/FE60B65A-AD94-4801-91A9-DA10F81CE124/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-0.2.15.tgz#16af950653083d1e3064061de9f8e5e3b579f688"

@@ -56,6 +56,7 @@
     "@angular/platform-server": "~7.2.0-rc.0",
     "@angular/router": "~7.2.0-rc.0",
     "@angularclass/bootloader": "~1.0.1",
+    "@fortawesome/angular-fontawesome": "^0.3.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.15",
     "@fortawesome/free-solid-svg-icons": "^5.7.2",
     "@ngrx/effects": "~7.0.0-beta.1",

@@ -44,7 +44,7 @@ describe('ConfigMenuDialogComponent', () => {
           provide: MAT_DIALOG_DATA,
           useValue: {
             rootAlbumId: 'mock',
-            galleryName: 'Mock Album',
+            albumName: 'Mock Album',
             theme: ''
           }
         },

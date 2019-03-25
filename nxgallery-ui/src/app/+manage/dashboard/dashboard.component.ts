@@ -2,9 +2,9 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, ViewCh
 import { MatDialog } from '@angular/material';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import * as uuidV4 from 'uuid/v4';
-import { IAlbumDocument, IImageDocument } from '~/../../shared';
+import { AlbumInfoOnly, IAlbumDocument, IImageDocument } from '~/../../shared';
 import { ImagePosition, LoadingImage } from '~/app/shared/gallery/gallery.component';
 import { InputFile } from '~/app/shared/image-upload/interfaces/input-file';
 import { appConfig, environmentConfig } from '~/environments/environment';
@@ -32,10 +32,16 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   @ViewChild('imageGrid') imageGrid: ElementRef;
 
   themeCss: string;
-  rootAlbum: IAlbumDocument;
+  allAlbums: Map<string, AlbumInfoOnly>;
+  rootAlbum: AlbumInfoOnly;
+  breadcrumb: Array<AlbumInfoOnly>;
+  viewingAlbum: IAlbumDocument;
+
   uploadsInProgress: Array<UploadingImage>;
   images: Array<UploadedOrExistingImage>;
   checkChangesTimeout: number;
+
+  domReady = false;
 
   constructor(
     public sanitizer: DomSanitizer,
@@ -49,17 +55,50 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    if (this.route.snapshot.data.rootAlbum !== undefined) {
-      this.rootAlbum = this.route.snapshot.data.rootAlbum;
-      if (this.rootAlbum.settings.theme) {
-        this.setTheme(this.rootAlbum.settings.theme);
+    this.route.data.subscribe(data => {
+      if (data.allAlbums !== undefined) {
+        this.allAlbums = data.allAlbums;
+        this.allAlbums.forEach(album => {
+          if (typeof album.parent === 'undefined') {
+            this.rootAlbum = album;
+          }
+        });
+        
+        if (!this.rootAlbum) {
+          throw(new Error('root album not found'));
+        }
+  
+        if (this.rootAlbum.settings.theme) {
+          this.setTheme(this.rootAlbum.settings.theme);
+        }
       }
-    }
+  
+      this.viewingAlbum = data.viewingAlbum || this.rootAlbum;
+      
+      this.breadcrumb = [this.viewingAlbum]; 
+      // Iterate through the album tree until we reach the root album
+      while (true) {
+        const parentAlbum = this.allAlbums.get(this.breadcrumb[this.breadcrumb.length - 1].parent);
+        if (!parentAlbum) {
+          break;
+        }
+        this.breadcrumb.push(parentAlbum);
+      }
+      this.breadcrumb.reverse();
+
+      if (this.domReady) {
+        setTimeout(() => {
+          this.images = this.viewingAlbum.images;
+          this.ref.detectChanges();
+        })
+      }
+    });
   }
 
   // Need to initialize images for packery after the dom is created to prevent craziness
   ngAfterViewInit(): void {
-    this.images = this.rootAlbum.images;
+    this.domReady = true;
+    this.images = this.viewingAlbum.images;
     this.ref.detectChanges();
   }
 
@@ -130,7 +169,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       .filter(image => image !== undefined);
 
     if (payload.length > 0) {
-      this.imageService.saveImagePositions(this.rootAlbum._id, payload).subscribe((result: boolean) => {
+      this.imageService.saveImagePositions(this.viewingAlbum._id, payload).subscribe((result: boolean) => {
         // do nothing
       });
     }
@@ -145,9 +184,28 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         }
       })
   }
+  
+  createAlbum(): void {
+    this.imageService.createAlbum(this.viewingAlbum._id).subscribe((albumEntry) => {
+      const fakeProgress = {
+        uid: albumEntry._id,
+        aspect: albumEntry.info.aspect,
+        progress: new BehaviorSubject<number>(100),
+        inputFile: undefined as InputFile
+      };
+
+      this.uploadsInProgress = [ ...this.uploadsInProgress, fakeProgress];
+      setTimeout(() => {
+        this.uploadsInProgress.splice(this.uploadsInProgress.findIndex(progress => progress === fakeProgress), 1);
+        this.images.unshift(albumEntry);
+        this.ref.detectChanges();
+      }, 500);
+      this.ref.detectChanges();
+    });
+  }
 
   saveImageInfo(image: UploadedOrExistingImage): void {
-    this.imageService.saveImageInfo(this.rootAlbum._id, image.dbId || image._id, {
+    this.imageService.saveImageInfo(this.viewingAlbum._id, image.dbId || image._id, {
       caption: image.info.caption
     }).subscribe(() => {
       // do nothing on success, no need
@@ -156,8 +214,16 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     });
   }
 
+  setImageAsPrimary(imageToRemove: UploadedOrExistingImage): void {
+    this.imageService.setImageAsPrimary(this.viewingAlbum._id, imageToRemove.dbId || imageToRemove._id).subscribe(() => {
+      // do nothing on success, no need
+    }, (err) => {
+      console.error(err);
+    });
+  }
+
   removeImage(imageToRemove: UploadedOrExistingImage): void {
-    this.imageService.deleteImage(this.rootAlbum._id, imageToRemove.dbId || imageToRemove._id).subscribe(() => {
+    this.imageService.deleteImage(this.viewingAlbum._id, imageToRemove.dbId || imageToRemove._id).subscribe(() => {
       const i = this.images.findIndex(image => image._id === imageToRemove._id);
       this.images.splice(i, 1);
     }, (err) => {
@@ -165,12 +231,29 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     });
   }
 
+  openAlbumConfigDialog(): void {
+    const dialogRef = this.dialog.open<ConfigMenuDialogComponent, ConfigMenuResult, IAlbumDocument>(ConfigMenuDialogComponent, {
+      data: {
+        albumId: this.viewingAlbum._id,
+        albumName: this.viewingAlbum.name,
+        themeEnabled: false
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        Object.assign(this.viewingAlbum, result);
+        this.ref.detectChanges();
+      }
+    });
+  }
+
   openConfigDialog(): void {
     const dialogRef = this.dialog.open<ConfigMenuDialogComponent, ConfigMenuResult, IAlbumDocument>(ConfigMenuDialogComponent, {
       data: {
-        rootAlbumId: this.rootAlbum._id,
-        galleryName: this.rootAlbum.name,
-        theme: 'panda'
+        albumId: this.rootAlbum._id,
+        albumName: this.rootAlbum.name,
+        themeEnabled: false
       }
     });
 
@@ -192,7 +275,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   private executeNextUpload(): void {
     const loader = this.uploadsInProgress[0];
 
-    this.imageService.uploadImage(this.rootAlbum._id, this.uploadsInProgress[0].inputFile.file).subscribe((result) => {
+    this.imageService.uploadImage(this.viewingAlbum._id, this.uploadsInProgress[0].inputFile.file).subscribe((result) => {
       if (typeof result === 'number') {
         loader.progress.next(result);
       } else {
@@ -202,7 +285,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         this.images[0].dbId = dbId; 
         this.images[0]._id = loader.uid; // Maintain position of loaded image, just swap the info
         if (loader.newPosition !== undefined) {
-          this.imageService.saveImagePositions(this.rootAlbum._id, [{
+          this.imageService.saveImagePositions(this.viewingAlbum._id, [{
             _id: dbId,
             position: loader.newPosition
           }]).subscribe();

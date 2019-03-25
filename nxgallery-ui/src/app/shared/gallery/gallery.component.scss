@@ -14,6 +14,16 @@
 .grid-item {
   @include grid-item(3);
 
+  .album-link {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    width: 80px;
+    height: 80px;
+  }
+
   .image-actions {
     position: absolute;
     top: 5px;
