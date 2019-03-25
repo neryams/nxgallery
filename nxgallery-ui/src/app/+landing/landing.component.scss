@@ -14,6 +14,10 @@
 
   position: absolute;
 
+  &.link {
+    cursor: pointer;
+  }
+
   img {
     width: 100%;
     display: block;
@@ -26,6 +30,19 @@
     transition-property: width;
     transition-duration: 0.25s;
     transition-timing-function: ease;
+  }
+
+  .image-container {
+    .album-overlay {
+      position: absolute;
+      bottom: 14px;
+      right: 22px;
+      font-size: 32px;
+      opacity: 0.8;
+      color: white;
+      display: inline-block;
+      line-height: 1;
+    }
   }
 
   &.display-detail {
@@ -77,6 +94,10 @@
       }
     }
   }
+}
+
+.breadcrumb {
+  @include breadcrumb();
 }
 
 .overlay {

@@ -1,6 +1,10 @@
-@mixin grid() {
+@mixin container() {
   max-width: 1000px;
   margin: 0 auto;
+}
+
+@mixin grid() {
+  @include container();
 
   --gutter: 0px;
 }
@@ -52,5 +56,33 @@
     bottom: 0;
     opacity: 0.6;
     background: black;
+  }
+}
+
+@mixin breadcrumb() {
+  @include container();
+
+  list-style-type: none;
+  margin-top: 40px;
+  font-size: 12pt;
+  padding: 0;
+
+  .breadcrumb-item {
+    display: inline;
+    color: #777;
+    font-weight: bold;
+    cursor: pointer;
+
+    &:after {
+      content: '/';
+    }
+
+    &:last-child {
+      color: black;
+
+      &:after {
+        content: '';
+      }
+    }
   }
 }

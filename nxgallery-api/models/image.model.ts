@@ -1,9 +1,10 @@
-import { set, Schema, Document, model as createModel, Query, Types, DocumentQuery } from 'mongoose';
+import { set, Schema, Document, model as createModel, Query, Types } from 'mongoose';
 import * as _ from 'lodash';
 
 import { BaseDatabase } from './base.model';
  
-import { Album, ImageData, ErrorCodes } from '../../shared';
+import { Album, AlbumInfoOnly, ImageData, ErrorCodes } from '../../shared';
+import { IUserDocument } from './users.model';
 
 set('useFindAndModify', false);
 
@@ -22,6 +23,7 @@ const imageSchema = new Schema({
     type: Map,
     of: String
   },
+  childAlbumId: { type: Types.ObjectId, ref: 'Album' },
   sortOrder: Number,
   uploaded: Date,
   created: Date,
@@ -59,6 +61,7 @@ const albumSchema = new Schema({
   name: String,
   owner: { type: Types.ObjectId, ref: 'User' },
   parent: { type: Types.ObjectId, ref: 'Album' },
+  primaryImage: { type: Types.ObjectId, ref: 'Image' },
   settings: {
     theme: String
   },
@@ -70,12 +73,15 @@ export class ImageDatabase extends BaseDatabase {
   constructor() {
     super();
   }
+  getAllAlbumInfo(): Promise<Array<AlbumInfoOnly>> {
+    return AlbumModel.find({}).select('-images').lean().exec();
+  }
 
   getAlbum(albumId: string, pageSize?: number): Promise<IAlbumDocument> {
     if (typeof pageSize !== 'undefined') {
-      return this.getAlbumWithSortedImages({ _id: albumId }, pageSize);
+      return this.getAlbumWithSortedImages({ _id: new Types.ObjectId(albumId) }, pageSize);
     } else {
-      return this.getAlbumWithSortedImages({ _id: albumId });
+      return this.getAlbumWithSortedImages({ _id: new Types.ObjectId(albumId) });
     }
   }
 
@@ -88,11 +94,34 @@ export class ImageDatabase extends BaseDatabase {
   }
 
   getImagesByCreated(albumId: string, pageSize: number, index: number) {
-    return this.getImages(albumId, { 'created': 'desc' }, pageSize, index);
+    //return this.getImages(albumId, { 'created': 'desc' }, pageSize, index);
   }
 
   getImagesBySort(albumId: string, pageSize: number, index: number) {
-    return this.getImages(albumId, { 'sortOrder': 'desc' }, pageSize, index);
+    return this.getAlbumWithSortedImages({ _id: new Types.ObjectId(albumId) }, pageSize, index).then(res => {
+      return res;
+    });
+  }
+
+  setImageAsPrimary(albumId: string, imageId: string) {
+    return AlbumModel.find({ '_id': new Types.ObjectId(albumId), 'images._id': new Types.ObjectId(imageId) }, { 'parent': 1, 'images.$': 1 }).then(res => {
+      if (res.length === 0 || res[0].images.length === 0) {
+        return null;
+      } else {
+        const childAlbum = res[0];
+        const primaryImage = res[0].images[0];
+        return this.saveImageInfo(
+          { childAlbumId: childAlbum._id },
+          childAlbum.parent,
+          { imageUrls: primaryImage.imageUrls, aspect: primaryImage.info.aspect }
+        ).then(res => {
+          return AlbumModel.findOneAndUpdate(
+            { '_id': childAlbum._id },
+            { 'primaryImage': primaryImage._id }
+          ).exec();
+        })
+      }
+    });
   }
 
   saveImagePositions(albumId: string, data: Array<{ _id: string, sortOrder: number, position: { x: number, y: number } }>) {
@@ -109,14 +138,28 @@ export class ImageDatabase extends BaseDatabase {
     })
   }
 
-  saveImageInfo(_id: string, albumId: string, { caption }: { caption: string}) {
+  saveImageInfo(
+    imageQueryObj: { _id?: string, childAlbumId?: string },
+    albumId: string,
+    { caption, imageUrls, aspect }: { caption?: string, imageUrls?: ImageData['imageUrls'], aspect?: number }
+  ) {
+    const queryParamPayload: any = { '_id': albumId };
+    const querySetPayload = {};
+    for (let queryOption in imageQueryObj) {
+      queryParamPayload[`images.${queryOption}`] = imageQueryObj[queryOption];
+    }
+    if (caption) {
+      querySetPayload['images.$.info.caption'] = caption;
+    }
+    if (imageUrls) {
+      querySetPayload['images.$.imageUrls'] = imageUrls;
+    }
+    if (aspect) {
+      querySetPayload['images.$.info.aspect'] = aspect;
+    }
     return AlbumModel.findOneAndUpdate(
-      { '_id': albumId, 'images._id': _id },
-      { 
-        $set: {
-          'images.$.info.caption': caption
-        }
-      }
+      queryParamPayload,
+      { $set: querySetPayload }
     ).exec();
   }
 
@@ -125,6 +168,31 @@ export class ImageDatabase extends BaseDatabase {
       { '_id': albumId },
       { $pull: { 'images': { _id } } }
     ).exec();
+  }
+
+  createAlbum(parentAlbumId: string, user: IUserDocument) {
+    let newUserRootAlbum = new AlbumModel({
+      name: 'New Album',
+      owner: user._id,
+      parent: parentAlbumId,
+      images: []
+    });
+    
+    return newUserRootAlbum.save().then((newAlbum: IAlbumDocument) => {
+      return this.addImageToAlbum(
+        {
+          title: newAlbum.name,
+          imageUrls: [],
+          childAlbumId: newAlbum._id,
+          uploaded: null,
+          created: new Date().valueOf(),
+          info: {
+            aspect: 1
+          }
+        },
+        parentAlbumId
+      )
+    });
   }
 
   saveAlbumInfo(albumId: string, { name, settings }: Partial<{ name: string, settings: { theme: string }}>) {
@@ -145,7 +213,7 @@ export class ImageDatabase extends BaseDatabase {
     ).exec();
   }
 
-  saveImageData(data: ImageData, albumId: string) {
+  addImageToAlbum(data: ImageData, albumId: string) {
     const saveData = _.extend({}, data);
     let image = new Image(saveData);
 
@@ -157,29 +225,58 @@ export class ImageDatabase extends BaseDatabase {
       if(!album || !album.toObject()) {
         throw Error(ErrorCodes.albumNotFound.code);
       }
-      return image.toJSON() as IImageDocument
+      if (!album.primaryImage) {
+        return this.setImageAsPrimary(album._id, image._id).then(() => image.toJSON() as IImageDocument);
+      } else {
+        return image.toJSON() as IImageDocument
+      }
     });
   }
 
-  private getAlbumWithSortedImages(matchArg: any, pageSize?: number) {
-    return AlbumModel.findOne(matchArg, { images: { $slice: 1 } }).then(result => {
-      if (result.images.length === 0) {
+  private getAlbumWithSortedImages(matchArg: any, pageSize?: number, skip?: number): Promise<IAlbumDocument> {
+    const returnObj = {
+      _id: '$_id',
+      images: { $push: '$images'},
+
+      ...(skip ? {} : {
+        settings: { $first: '$settings' },
+        name: { $first: '$name' },
+        parent: { $first: '$parent' },
+        primaryImage: { $first: '$primaryImage' }
+      })
+    };
+
+    return AlbumModel.findOne(matchArg, { images: { $slice: 2 } }).then(result => {
+      if (result.images.length < 2 ) {
         return result;
       }
 
-      let query = AlbumModel.aggregate()
-        .match(matchArg)
-        .unwind('images')
-        .sort({ 'images.sortOrder': 'desc' });
+      let facet: { totalData: Array<any>, totalCount: Array<any> } = {
+        "totalData": [
+          { "$sort": { 'images.sortOrder': -1 } }
+        ],
+        "totalCount": [
+          { "$count": "count" }
+        ]
+      }
       
-        if (pageSize) {
-          query = query.limit(pageSize)
-        }
-  
-        return query.group({ _id: '$_id', images: { $push: '$images'}, settings: { $first: '$settings' }, name: { $first: '$name' } })
-        .limit(1)
-        .exec()
-        .then(result => result[0]);
+      if (skip) {
+        facet.totalData.push({ "$skip": skip });
+      }
+      if (pageSize) {
+        facet.totalData.push({ "$limit": pageSize });
+      }
+
+      facet.totalData.push({ "$group": returnObj }, { "$limit": 1 });
+
+      return AlbumModel.aggregate([
+        { "$match": matchArg },
+        { "$unwind": '$images' },
+        { "$facet": facet }
+      ]).exec()
+        .then(result => { 
+          return { imageCount: result[0].totalCount[0].count, ...result[0].totalData[0] };
+        });
     });
   }
 

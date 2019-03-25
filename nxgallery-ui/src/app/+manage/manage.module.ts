@@ -11,7 +11,7 @@ import { MaterialModule } from '~/app/framework/material';
 import { environmentConfig } from '~/environments/environment';
 
 import { ImageFrameworkModule } from '../framework/images/image.module';
-import { RootAlbumAllResolver } from '../framework/images/image.resolvers';
+import { AlbumAllResolver, AllAlbumInfoResolver, RootAlbumAllResolver } from '../framework/images/image.resolvers';
 import { SettingsService } from '../framework/settings/settings.service';
 import { LayoutModule } from '../layout/layout.module';
 import { GalleryModule } from '../shared/gallery/gallery.module';
@@ -52,7 +52,9 @@ const config: InputFileConfig = {
   providers: [
     SettingsService,
     MatIconRegistry,
+    AllAlbumInfoResolver,
     RootAlbumAllResolver,
+    AlbumAllResolver,
     {
       provide: MATERIAL_SANITY_CHECKS,
       useValue: false

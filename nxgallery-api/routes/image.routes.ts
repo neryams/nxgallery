@@ -15,15 +15,22 @@ class ImageRoutes {
 
     // Public Routes
 
+    this.router.get('/albums',
+      (req: express.Request, res: express.Response) => imageController.getAllAlbumInfo(req, res)
+    );
+
     this.router.get('/root/:perPage',
       (req: express.Request, res: express.Response) => imageController.getAlbum(req, res)
     );
+
     this.router.get('/album/:albumId/:perPage,:page',
       (req: express.Request, res: express.Response) => imageController.getImages(req, res).bySort()
     );
+
     // this.router.get('/album/:albumId/:perPage,:page',
     //   (req: express.Request, res: express.Response) => imageController.getImages(req, res).byCreated()
     // );
+
     this.router.get('/album/:albumId/:perPage',
       (req: express.Request, res: express.Response) => imageController.getAlbum(req, res)
     );
@@ -34,8 +41,16 @@ class ImageRoutes {
       (req: express.Request, res: express.Response) => imageController.getAlbum(req, res)
     );
 
+    this.router.post('/manage/newAlbum/:parentAlbumId', jwt({secret: config.get('JWT_SECRET')}),
+      (req: express.Request, res: express.Response) => imageController.createAlbum(req, res)
+    );
+
     this.router.get('/manage/:albumId', jwt({secret: config.get('JWT_SECRET')}),
       (req: express.Request, res: express.Response) => imageController.getAlbum(req, res)
+    );
+
+    this.router.put('/manage/:albumId/primary', jwt({secret: config.get('JWT_SECRET')}),
+      (req: express.Request, res: express.Response) => imageController.setImageAsPrimary(req, res)
     );
 
     this.router.put('/manage/:albumId/positions', jwt({secret: config.get('JWT_SECRET')}),

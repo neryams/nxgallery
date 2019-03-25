@@ -1,20 +1,41 @@
 import { HttpClient, HttpEventType, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 
-import { Album, IImageDocument, ImageData } from './../../../../../shared';
+import { AlbumInfoOnly, IAlbumDocument, IImageDocument } from './../../../../../shared';
 
 @Injectable()
 export class ImageService {
+  albumCache: Map<string, AlbumInfoOnly>;
   constructor(private readonly http: HttpClient) {}
 
-  getRootAlbum(perPage = 18): Observable<Album> {
-    return this.http.get<Album>(`/api/image/root/${perPage}`);
+  getRootAlbum(perPage = 18): Observable<IAlbumDocument> {
+    return this.http.get<IAlbumDocument>(`/api/image/root/${perPage}`);
   }
 
-  getAlbum(albumId: string, perPage = 18): Observable<Album> {
-    return this.http.get<Album>(`/api/image/album/${albumId}/${perPage}`);
+  getAllAlbumInfo(): Observable<Map<string, AlbumInfoOnly>> {
+    if (this.albumCache) {
+      return of(this.albumCache);
+    }
+
+    return this.http.get<Array<AlbumInfoOnly>>(`/api/image/albums`).pipe(
+      map(result => {
+        this.albumCache = new Map();
+        result.forEach(album => this.albumCache.set(album._id, album));
+
+        return this.albumCache;
+      })
+    );
+  }
+
+  getAlbum(albumId: string, perPage = 18): Observable<IAlbumDocument> {
+    return this.http.get<IAlbumDocument>(`/api/image/album/${albumId}/${perPage}`);
+  }
+
+  // Returns the image document on the parent album so we can update the page
+  createAlbum(parentAlbumId: string): Observable<IImageDocument> {
+    return this.http.post<IImageDocument>(`/api/image/manage/newAlbum/${parentAlbumId}`, {});
   }
 
   getImages(albumId: string, page = 1, perPage = 18): Observable<Array<IImageDocument>> {
@@ -23,12 +44,16 @@ export class ImageService {
       .pipe(map(value => value.images));
   }
 
-  getRootAlbumAll(): Observable<Album> {
-    return this.http.get<Album>(`/api/image/manage/root`);
+  getRootAlbumAll(): Observable<IAlbumDocument> {
+    return this.http.get<IAlbumDocument>(`/api/image/manage/root`);
   }
 
-  getAlbumAll(albumId: string): Observable<Album> {
-    return this.http.get<Album>(`/api/image/manage/${albumId}`);
+  getAlbumAll(albumId: string): Observable<IAlbumDocument> {
+    return this.http.get<IAlbumDocument>(`/api/image/manage/${albumId}`);
+  }
+
+  setImageAsPrimary(albumId: string, id: string): Observable<boolean> {
+    return this.http.put<boolean>(`/api/image/manage/${albumId}/primary`, { imageId: id });
   }
 
   saveImagePositions(albumId: string, data: Array<{ _id: string; position: { x: number; y: number } }>): Observable<boolean> {

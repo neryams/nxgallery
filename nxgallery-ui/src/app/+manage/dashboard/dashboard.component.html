@@ -4,26 +4,47 @@
 
 <header class="dashboard-menu">
   <ul>
-    <li>
+    <li class="upload-buttons">
       <nxg-input-file class="file-input" fileAccept="image/*" fileLimit="50" (acceptedFile)="upload($event)" textAdd="Upload Images"></nxg-input-file>
     </li>
+    <li class="spacer"></li>
     <li class="menu-buttons">
-      <button (click)="openConfigDialog()" mat-raised-button color="primary">
+      <button (click)="createAlbum()" mat-raised-button color="primary">
+        <mat-icon aria-hidden="true" fontSet="fas" fontIcon="fa-book"></mat-icon>
+        Create Album
+      </button>
+      <button [hidden]="!viewingAlbum.parent" (click)="openAlbumConfigDialog()" mat-raised-button color="accent">
         <mat-icon aria-hidden="true" fontSet="fas" fontIcon="fa-cog"></mat-icon>
-        Settings
+        Album Settings
+      </button>
+      <button (click)="openConfigDialog()" mat-raised-button color="secondary">
+        <mat-icon aria-hidden="true" fontSet="fas" fontIcon="fa-cog"></mat-icon>
+        Gallery Settings
       </button>
     </li>
   </ul>
 </header>
+
+<ul class="breadcrumb" *ngIf="breadcrumb.length > 1">
+  <li 
+    class="breadcrumb-item" 
+    *ngFor="let album of breadcrumb; let i = index;" 
+    [routerLink]="rootAlbum._id === album._id ? ['/manage/dashboard'] : ['/manage/dashboard', album._id]"
+  >
+    {{ i === 0 ? 'Home' : album.name }}
+  </li>
+</ul>
 
 <section #imageGrid class="image-grid">
   <!--<div class="progress-item" *ngFor="let item of uploadsInProgress">
     {{ item.file.name }}
   </div>-->
   <nxg-gallery 
-    [images]="images" 
-    [progress]="uploadsInProgress" 
-    (movedImages)="saveImagePositions($event)" 
+    [images]="images"
+    [progress]="uploadsInProgress"
+    [isRoot]="!viewingAlbum.parent"
+    (movedImages)="saveImagePositions($event)"
     (updatedImage)="saveImageInfo($event)"
+    (setImageAsPrimary)="setImageAsPrimary($event)"
     (removeImage)="removeImage($event)"></nxg-gallery>
 </section>
