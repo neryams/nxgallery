@@ -19,7 +19,7 @@
           <mat-icon aria-label="Close image info editor" fontSet="fas" fontIcon="fa-ellipsis-v"></mat-icon>
         </button>
         <mat-menu #imageMenu="matMenu">
-          <button *ngIf="!isRoot" (click)="setAsPrimary(image)" mat-menu-item>Set as album thumbnail</button>
+          <button *ngIf="!isAlbumRoot" (click)="setAsPrimary(image)" mat-menu-item>Set as album thumbnail</button>
           <button (click)="deleteImage(image)" mat-menu-item>Delete</button>
         </mat-menu>
       </div>

@@ -32,6 +32,7 @@ export interface GalleryItem {
 export class GalleryComponent {
   @Input() images: Array<IImageDocument>;
   @Input() progress: Array<LoadingImage>;
+  @Input() isAlbumRoot: boolean;
   @Input() trackBy: (input: IImageDocument) => any;
   @ViewChild('grid') gridElem: ElementRef;
 

@@ -54,8 +54,8 @@ interface PackeryItemMock {
 export class GalleryComponent implements OnInit, AfterViewInit, DoCheck {
   @Input() images: Array<IImageDocument>;
   @Input() progress: Array<LoadingImage>;
+  @Input() isAlbumRoot: boolean;
   @Input() trackBy: (input: IImageDocument) => any;
-  @Input() isRoot: boolean;
   @ViewChild('grid') gridElem: ElementRef;
   @ViewChild('overlay') overlay: ElementRef;
 
@@ -112,6 +112,7 @@ export class GalleryComponent implements OnInit, AfterViewInit, DoCheck {
 
   ngOnInit(): void {
     this.gridElem.nativeElement.style.setProperty('--gutter', `${appConfig.gallery.gutter}px`);
+    console.log(this.isAlbumRoot);
   }
 
   ngDoCheck(): void {

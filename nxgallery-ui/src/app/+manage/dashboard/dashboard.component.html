@@ -42,7 +42,7 @@
   <nxg-gallery 
     [images]="images"
     [progress]="uploadsInProgress"
-    [isRoot]="!viewingAlbum.parent"
+    [isAlbumRoot]="!viewingAlbum.parent"
     (movedImages)="saveImagePositions($event)"
     (updatedImage)="saveImageInfo($event)"
     (setImageAsPrimary)="setImageAsPrimary($event)"

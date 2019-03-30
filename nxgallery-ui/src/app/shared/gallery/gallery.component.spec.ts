@@ -5,7 +5,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { RouterTestingModule } from '@angular/router/testing';
 import { MockImageService } from '~/app/framework/images/testing/mocks/image-service.mock';
 import { t } from '~/app/framework/testing';
 
@@ -22,12 +24,14 @@ describe('GalleryComponent', () => {
     TestBed.configureTestingModule({
       declarations: [GalleryItemsDirective, GalleryComponent],
       imports: [
+        RouterTestingModule.withRoutes([]),
         ReactiveFormsModule,
         MatProgressBarModule,
         MatCardModule,
         MatFormFieldModule,
         MatInputModule,
         MatIconModule,
+        MatMenuModule,
         MatButtonModule
       ]
     }).compileComponents();

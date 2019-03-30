@@ -1,5 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { ImageFrameworkTestingModule } from '~/app/framework/images/testing/image-testing.module';
 
@@ -14,7 +15,8 @@ describe('LandingComponent', () => {
       imports: [
         RouterTestingModule.withRoutes([]),
         ImageFrameworkTestingModule,
-        InfiniteScrollModule
+        InfiniteScrollModule,
+        FontAwesomeModule
       ],
       declarations: [ LandingComponent ]
     })
