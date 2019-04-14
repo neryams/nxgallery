@@ -253,7 +253,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       data: {
         albumId: this.rootAlbum._id,
         albumName: this.rootAlbum.name,
-        themeEnabled: false
+        themeEnabled: true
       }
     });
 
