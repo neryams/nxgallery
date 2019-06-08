@@ -1,41 +1,41 @@
 <div>
   <h2>Theme Settings</h2>
-  <mat-accordion>
-    <mat-expansion-panel [expanded]="true">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          Basic Settings
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-  
-      <form [formGroup]="gallerySettingsForm">
+  <form [formGroup]="gallerySettingsForm">
+    <mat-accordion>
+      <mat-expansion-panel [expanded]="true">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Basic Settings
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+    
         <mat-form-field floatLabel="always">
           <input matInput placeholder="Gallery Name" formControlName="albumName">
         </mat-form-field>
-      </form>
-    </mat-expansion-panel>
-    <mat-expansion-panel *ngIf="themeEnabled">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          Upload Theme File
-        </mat-panel-title>
-        <mat-panel-description>
-          CSS file for your theme
-        </mat-panel-description>
-      </mat-expansion-panel-header>
-  
-      <nxg-input-file class="file-input" fileAccept="text/*" fileLimit="1" (acceptedFile)="uploadTheme($event)" [showFiles]="true"></nxg-input-file>
-    </mat-expansion-panel>
-  </mat-accordion>
+      </mat-expansion-panel>
+      <mat-expansion-panel *ngIf="themeEnabled">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Upload Theme File
+          </mat-panel-title>
+          <mat-panel-description>
+            CSS file for your theme
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+    
+        <nxg-input-file class="file-input" fileAccept="text/*" fileLimit="1" (acceptedFile)="uploadTheme($event)" [showFiles]="true"></nxg-input-file>
+      </mat-expansion-panel>
+    </mat-accordion>
 
-  <section class="menu">
-    <button (click)="closeDialog()" mat-raised-button color="secondary">
-      <mat-icon aria-hidden="true" fontSet="fas" fontIcon="fa-times"></mat-icon>
-      Cancel
-    </button>
-    <button (click)="save()" mat-raised-button color="primary">
-      <mat-icon aria-hidden="true" fontSet="fas" fontIcon="fa-check"></mat-icon>
-      Save
-    </button>
-  </section>
+    <section class="menu">
+      <button type="button" (click)="closeDialog()" mat-raised-button color="secondary">
+        <mat-icon aria-hidden="true" fontSet="fas" fontIcon="fa-times"></mat-icon>
+        Cancel
+      </button>
+      <button type="submit" (click)="save()" mat-raised-button color="primary">
+        <mat-icon aria-hidden="true" fontSet="fas" fontIcon="fa-check"></mat-icon>
+        Save
+      </button>
+    </section>
+  </form>
 </div>
