@@ -19,7 +19,7 @@
     [style.height.px]="containerHeight">
       <div class="grid-item" *ngFor="let image of images; trackBy: imageUUID"
         [routerLink]="image.albumLink ? ['/album', image.albumLink]: null"
-        [ngClass]="{ 'display-detail': image.displayDetail, 'link': image.albumLink }"
+        [ngClass]="{ 'grid-item--detail': image.displayDetail, 'link': image.albumLink }"
         [style.top.px]="image.position.top"
         [style.left.px]="image.position.left"
         [style.width.px]="image.position.width"
@@ -28,6 +28,7 @@
         <div class="image-container">
           <img [attr.src]="image.displayDetail ? image.largeFileUrl : image.url"
             [attr.aria-describedby]="'caption_' + image.id" />
+          <label class="grid-item__label">{{ image.title }}</label>
 
           <span class="album-overlay" *ngIf="image.albumLink"><fa-icon [icon]="['fas', 'images']"></fa-icon></span>
         </div>

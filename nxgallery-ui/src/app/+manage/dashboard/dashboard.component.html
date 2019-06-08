@@ -29,7 +29,7 @@
   <li 
     class="breadcrumb-item" 
     *ngFor="let album of breadcrumb; let i = index;" 
-    [routerLink]="rootAlbum._id === album._id ? ['/manage/dashboard'] : ['/manage/dashboard', album._id]"
+    [routerLink]="i === 0 ? ['/manage/dashboard'] : ['/manage/dashboard', album._id]"
   >
     {{ i === 0 ? 'Home' : album.name }}
   </li>

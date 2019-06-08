@@ -1,5 +1,5 @@
 import { IImageDocument, IAlbumDocument } from './../../shared/interfaces/imageData';
-import { Document } from 'mongoose';
+import { Document, MongooseDocument } from 'mongoose';
 import { ImageDatabase } from './../models/image.model';
 import { FileStreamOutputResult } from './../helpers/ImageStorage';
 import { Request, Response } from 'express';
@@ -104,8 +104,8 @@ export class ImageController {
   }
 
   saveImageInfo(req: Request, res: Response) {
-    this.imageDatabase.saveImageInfo({ _id: req.params.id }, req.params.albumId, req.body).then(result => {
-      res.json(true);
+    this.imageDatabase.saveImageInfo({ _id: req.params.id }, req.params.albumId, req.body).then((result) => {
+      res.json((result.images as unknown as MongooseDocument).id(req.params.id));
     }, (err) => {
       res.status(500).json({ message: 'Could not update image info', err: err });
     })

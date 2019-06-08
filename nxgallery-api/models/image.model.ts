@@ -141,12 +141,24 @@ export class ImageDatabase extends BaseDatabase {
   saveImageInfo(
     imageQueryObj: { _id?: string, childAlbumId?: string },
     albumId: string,
-    { caption, imageUrls, aspect }: { caption?: string, imageUrls?: ImageData['imageUrls'], aspect?: number }
+    {
+      title,
+      caption, 
+      imageUrls, 
+      aspect
+    }: {
+      title?: string,
+      caption?: string,
+      imageUrls?: ImageData['imageUrls'],
+      aspect?: number }
   ) {
     const queryParamPayload: any = { '_id': albumId };
     const querySetPayload = {};
     for (let queryOption in imageQueryObj) {
       queryParamPayload[`images.${queryOption}`] = imageQueryObj[queryOption];
+    }
+    if (title) {
+      querySetPayload['images.$.title'] = title;
     }
     if (caption) {
       querySetPayload['images.$.info.caption'] = caption;
@@ -159,8 +171,22 @@ export class ImageDatabase extends BaseDatabase {
     }
     return AlbumModel.findOneAndUpdate(
       queryParamPayload,
-      { $set: querySetPayload }
-    ).exec();
+      { $set: querySetPayload },
+      { new: true }
+    ).exec().then(foundAlbum => {
+      const editingImage = foundAlbum.images.find(image => image['id'] === imageQueryObj._id);
+
+      if(editingImage && editingImage.childAlbumId) {
+        return AlbumModel.findOneAndUpdate(
+          { '_id': editingImage.childAlbumId },
+          { $set: { 'name': title } }
+        ).exec().then(() => {
+          return foundAlbum;
+        })
+      }
+
+      return foundAlbum;
+    });
   }
 
   deleteImage(_id: string, albumId: string) {
@@ -210,7 +236,15 @@ export class ImageDatabase extends BaseDatabase {
         $set: payload
       },
       { new: true }
-    ).exec();
+    ).exec().then(foundAlbum => {
+      if(foundAlbum.parent) {
+        return this.saveImageInfo({childAlbumId: albumId}, foundAlbum.parent, { title: name }).then(() => {
+          return foundAlbum;
+        });
+      }
+      
+      return foundAlbum;
+    });
   }
 
   addImageToAlbum(data: ImageData, albumId: string) {

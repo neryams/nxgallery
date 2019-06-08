@@ -7,6 +7,7 @@
 
     <div class="image-container">
       <img *ngIf="image.url" [attr.src]="image.url" (click)="editImageDetails(image, imageContainer)" />
+      <label class="grid-item__label">{{ image.title }}</label>
       <button 
         class="album-link" 
         *ngIf="image.childAlbumId"
@@ -31,6 +32,9 @@
         </mat-card-header>
         <mat-card-content>
           <form [formGroup]="imageSettingsForm">
+            <mat-form-field>
+              <input matInput placeholder="Title" formControlName="title">
+            </mat-form-field>
             <mat-form-field>
               <input matInput placeholder="Caption" formControlName="caption">
             </mat-form-field>

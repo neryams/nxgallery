@@ -204,11 +204,15 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     });
   }
 
-  saveImageInfo(image: UploadedOrExistingImage): void {
-    this.imageService.saveImageInfo(this.viewingAlbum._id, image.dbId || image._id, {
-      caption: image.info.caption
-    }).subscribe(() => {
-      // do nothing on success, no need
+  saveImageInfo(imageToUpdate: UploadedOrExistingImage): void {
+    this.imageService.saveImageInfo(this.viewingAlbum._id, imageToUpdate.dbId || imageToUpdate._id, {
+      title: imageToUpdate.title,
+      caption: imageToUpdate.info.caption
+    }).subscribe((newImageInfo) => {
+      const imageIndex = this.images.findIndex(existingImage => imageToUpdate._id === existingImage._id);
+      this.images.splice(imageIndex, 1, newImageInfo);
+      this.images = [...this.images];
+      this.ref.detectChanges();
     }, (err) => {
       console.error(err);
     });

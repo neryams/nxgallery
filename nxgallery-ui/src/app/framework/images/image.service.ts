@@ -60,8 +60,8 @@ export class ImageService {
     return this.http.put<boolean>(`/api/image/manage/${albumId}/positions`, data);
   }
 
-  saveImageInfo(albumId: string, id: string, data: { caption: string }): Observable<boolean> {
-    return this.http.put<boolean>(`/api/image/manage/${albumId}/${id}/info`, data);
+  saveImageInfo(albumId: string, id: string, data: { title: string; caption: string }): Observable<IImageDocument> {
+    return this.http.put<IImageDocument>(`/api/image/manage/${albumId}/${id}/info`, data);
   }
 
   deleteImage(albumId: string, id: string): Observable<boolean> {

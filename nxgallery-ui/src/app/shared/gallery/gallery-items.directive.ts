@@ -43,7 +43,9 @@ export class GalleryItemsDirective implements OnChanges {
       const updatedItems = galleryItems.filter(
         currItem =>
           this._items.find(
-            prevItem => prevItem.id === currItem.id && (prevItem.url !== currItem.url || prevItem.newItem !== currItem.newItem)
+            prevItem =>
+              prevItem.id === currItem.id &&
+              (prevItem.url !== currItem.url || prevItem.newItem !== currItem.newItem || prevItem.title !== currItem.title)
           ) !== undefined
       );
       // handle each change

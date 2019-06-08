@@ -37,6 +37,7 @@ export interface GalleryItem {
   id: string;
   aspect: number;
   newItem: boolean;
+  title: string;
   progress?: BehaviorSubject<number>;
 }
 
@@ -67,11 +68,13 @@ export class GalleryComponent implements OnInit, AfterViewInit, DoCheck {
   imagesChangedSubject = new Subject<Array<ImagePosition>>();
 
   progressLength: number;
-  imagesLength: number;
+  lastImagesLength: number;
+  lastImages: Array<IImageDocument>;
   currentImages: Array<GalleryItem>;
   gridInst: any;
 
   imageSettingsForm = new FormGroup({
+    title: new FormControl(''),
     caption: new FormControl('')
   });
 
@@ -116,12 +119,13 @@ export class GalleryComponent implements OnInit, AfterViewInit, DoCheck {
   }
 
   ngDoCheck(): void {
-    if (this.imagesLength !== this.images.length || this.progressLength !== this.progress.length) {
+    if (this.lastImages !== this.images || this.lastImagesLength !== this.images.length || this.progressLength !== this.progress.length) {
       this.currentImages = this.images.map((imageData: IImageDocument) => ({
         url: imageData.imageUrls['600'],
         id: imageData._id,
         childAlbumId: imageData.childAlbumId,
         aspect: imageData.info.aspect,
+        title: imageData.title,
         newItem: false
       }));
 
@@ -133,13 +137,14 @@ export class GalleryComponent implements OnInit, AfterViewInit, DoCheck {
               id: imageData.uid,
               aspect: imageData.aspect,
               newItem: true,
+              title: '',
               progress: imageData.progress
             }))
             .reverse()
         );
       }
-
-      this.imagesLength = this.images.length;
+      this.lastImages = this.images;
+      this.lastImagesLength = this.images.length;
       this.progressLength = this.progress.length;
     }
   }
@@ -182,7 +187,7 @@ export class GalleryComponent implements OnInit, AfterViewInit, DoCheck {
     }
 
     this.renderer.addClass(this.overlay.nativeElement, 'display');
-    this.renderer.addClass(imageElement, 'editing');
+    this.renderer.addClass(imageElement, 'grid-item--detail');
     const originalTop = imageElement.style.top;
 
     this.renderer.setStyle(imageElement, 'top', `${window.scrollY}px`);
@@ -192,13 +197,15 @@ export class GalleryComponent implements OnInit, AfterViewInit, DoCheck {
       itemElement: imageElement
     };
     const currentEditingImage = this.images.find(inputImage => inputImage._id === galleryItem.id);
+    this.imageSettingsForm.get('title').setValue(currentEditingImage.title || '');
     this.imageSettingsForm.get('caption').setValue(currentEditingImage.info.caption || '');
 
     this.ref.detectChanges();
   }
 
   saveImageDetails(updatedGalleryItem: GalleryItem): void {
-    const updatedImage = this.images.find(inputImage => inputImage._id === updatedGalleryItem.id);
+    const updatedImage = JSON.parse(JSON.stringify(this.images.find(inputImage => inputImage._id === updatedGalleryItem.id)));
+    updatedImage.title = this.imageSettingsForm.get('title').value;
     updatedImage.info.caption = this.imageSettingsForm.get('caption').value;
 
     this.updatedImage.emit(updatedImage);
@@ -209,7 +216,7 @@ export class GalleryComponent implements OnInit, AfterViewInit, DoCheck {
     if (this.currentEditing) {
       const image = this.currentEditing.itemElement;
       this.renderer.removeClass(this.overlay.nativeElement, 'display');
-      this.renderer.removeClass(image, 'editing');
+      this.renderer.removeClass(image, 'grid-item--detail');
       this.renderer.setStyle(image, 'top', this.currentEditing.originalTop);
 
       delete this.currentEditing;

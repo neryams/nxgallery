@@ -133,6 +133,7 @@ export class LandingComponent implements OnInit {
       }
   
       this.viewingAlbum = data.viewingAlbum || this.rootAlbum;
+      this.images = [];
       this.processImages(this.viewingAlbum.images);
       
       this.breadcrumb = [this.viewingAlbum]; 
@@ -145,6 +146,7 @@ export class LandingComponent implements OnInit {
         this.breadcrumb.push(parentAlbum);
       }
       this.breadcrumb.reverse();
+      this.ref.detectChanges();
     });
   }
 
@@ -237,6 +239,7 @@ export class LandingComponent implements OnInit {
         id: image._id,
         url: image.imageUrls['600'],
         largeFileUrl: image.imageUrls['1200'],
+        title: image.title,
         caption: image.info.caption,
         position: imagePosition,
         albumLink: image.childAlbumId,
