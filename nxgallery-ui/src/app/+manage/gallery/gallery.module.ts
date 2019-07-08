@@ -10,6 +10,9 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
 
+import { ImageFrameworkModule } from '../../framework/images/image.module';
+import { ManageFormsModule } from '../manage.forms.module';
+
 import { GalleryItemsDirective } from './gallery-items.directive';
 import { GalleryComponent } from './gallery.component';
 
@@ -25,8 +28,10 @@ import { GalleryComponent } from './gallery.component';
     MatInputModule,
     MatIconModule,
     MatMenuModule,
-    MatButtonModule
+    MatButtonModule,
+    ImageFrameworkModule,
+    ManageFormsModule
   ],
   exports: [GalleryComponent, GalleryItemsDirective]
 })
-export class GalleryModule {}
+export class ManageGalleryModule {}

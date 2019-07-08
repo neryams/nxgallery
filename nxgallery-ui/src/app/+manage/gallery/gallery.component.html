@@ -21,29 +21,23 @@
         </button>
         <mat-menu #imageMenu="matMenu">
           <button *ngIf="!isAlbumRoot" (click)="setAsPrimary(image)" mat-menu-item>Set as album thumbnail</button>
+          <button *ngIf="image.childAlbumId" (click)="editImageDetails(image, imageContainer)" mat-menu-item>Edit Album Settings</button>
           <button (click)="deleteImage(image)" mat-menu-item>Delete</button>
         </mat-menu>
       </div>
 
       <mat-card class="image-settings" 
         *ngIf="currentEditing !== undefined && currentEditing.itemElement === imageContainer">
-        <form [formGroup]="imageSettingsForm">
-          <mat-card-header>
-            <mat-card-title>Image Parameters</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-              <mat-form-field>
-                <input matInput placeholder="Title" formControlName="title">
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput placeholder="Caption" formControlName="caption">
-              </mat-form-field>
-          </mat-card-content>
-          <mat-card-actions align="end">
-            <button mat-flat-button (click)="closeImageDetails()" type="button">Cancel</button>
-            <button mat-raised-button color="primary" (click)="saveImageDetails(image)" type="submit">Save</button>
-          </mat-card-actions>
-        </form>
+        <mat-card-header>
+          <mat-card-title>Image Parameters</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <nxg-image-settings-form [image]="this.currentEditing.imageDocument"></nxg-image-settings-form>
+        </mat-card-content>
+        <mat-card-actions align="end">
+          <button mat-flat-button (click)="closeImageDetails()" type="button">Cancel</button>
+          <button mat-raised-button color="primary" (click)="saveImageDetails(this.currentEditing.imageDocument)" type="submit">Save</button>
+        </mat-card-actions>
       </mat-card>
     </div>
 

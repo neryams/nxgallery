@@ -1,4 +1,3 @@
-
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
@@ -6,11 +5,12 @@ import { SettingsService } from '~/app/framework/settings/settings.service';
 import { InputFile } from '~/app/shared/image-upload/interfaces/input-file';
 
 import { IAlbumDocument } from '../../../../../shared';
+import { IImageDocument } from '../../../../../shared/interfaces/imageData';
 
 export interface ConfigMenuResult {
   albumId: string;
   albumName: string;
-  themeEnabled: boolean;
+  rootSettings: boolean;
 }
 
 @Component({
@@ -20,20 +20,32 @@ export interface ConfigMenuResult {
 })
 export class ConfigMenuDialogComponent implements OnInit {
   albumId: string;
+  albumImageDocument: IImageDocument;
   gallerySettingsForm: FormGroup;
   themeFile: InputFile;
-  themeEnabled: boolean;
+  rootSettings: boolean;
   
   constructor(
-    public dialogRef: MatDialogRef<ConfigMenuDialogComponent, IAlbumDocument>,
+    public dialogRef: MatDialogRef<ConfigMenuDialogComponent, IAlbumDocument | IImageDocument>,
     @Inject(MAT_DIALOG_DATA) public data: ConfigMenuResult,
     private settingsService: SettingsService
   ) {
     this.albumId = this.data.albumId;
-    this.themeEnabled = this.data.themeEnabled;
+    this.rootSettings = this.data.rootSettings;
     this.gallerySettingsForm = new FormGroup({
       albumName: new FormControl(this.data.albumName)
     });
+
+    this.albumImageDocument = {
+      title: this.data.albumName,
+      imageUrls: { },
+      uploaded: -1,
+      created: -1,
+      _id: '',
+      info: {
+        caption: ''
+      }
+    };
   }
 
   ngOnInit(): void {
@@ -48,8 +60,8 @@ export class ConfigMenuDialogComponent implements OnInit {
     this.dialogRef.close(undefined);
   }
 
-  save(): void {
-    if (this.themeEnabled && this.themeFile) {
+  saveByAlbum(): void {
+    if (this.rootSettings && this.themeFile) {
       this.settingsService.uploadTheme(this.themeFile.file).subscribe((uploadResult) => {
         if (typeof uploadResult === 'number') {
           // Some progress bar stuff here later
@@ -62,7 +74,11 @@ export class ConfigMenuDialogComponent implements OnInit {
     }
   }
 
-  submitDialog(): void {
+  saveByImage(result: IImageDocument): void {
+    this.dialogRef.close(result);
+  }
+
+  private submitDialog(): void {
     this.settingsService.updateAlbumSettings({
       _id: this.albumId,
       name: this.gallerySettingsForm.get('albumName').value

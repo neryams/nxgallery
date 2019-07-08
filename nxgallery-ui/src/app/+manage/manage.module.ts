@@ -14,14 +14,15 @@ import { ImageFrameworkModule } from '../framework/images/image.module';
 import { AlbumAllResolver, AllAlbumInfoResolver, RootAlbumAllResolver } from '../framework/images/image.resolvers';
 import { SettingsService } from '../framework/settings/settings.service';
 import { LayoutModule } from '../layout/layout.module';
-import { GalleryModule } from '../shared/gallery/gallery.module';
 import { InputFileModule } from '../shared/image-upload/input-file.module';
 import { InputFileConfig } from '../shared/image-upload/interfaces/input-file-config';
 
 import { ConfigMenuDialogComponent } from './config-menu/config-menu.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { ManageGalleryModule } from './gallery/gallery.module';
 import { LoginComponent } from './login/login.component';
 import { ManageComponent } from './manage.component';
+import { ManageFormsModule } from './manage.forms.module';
 import { routes } from './manage.routes';
 
 const config: InputFileConfig = {
@@ -40,8 +41,9 @@ const config: InputFileConfig = {
     MatIconModule,
     LayoutModule,
     InputFileModule.forRoot(config),
-    GalleryModule,
-    ImageFrameworkModule
+    ManageGalleryModule,
+    ImageFrameworkModule,
+    ManageFormsModule
   ],
   declarations: [
     LoginComponent,

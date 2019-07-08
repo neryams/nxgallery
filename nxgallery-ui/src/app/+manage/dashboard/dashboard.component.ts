@@ -5,13 +5,12 @@ import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, of } from 'rxjs';
 import * as uuidV4 from 'uuid/v4';
 import { AlbumInfoOnly, IAlbumDocument, IImageDocument } from '~/../../shared';
-import { ImagePosition, LoadingImage } from '~/app/shared/gallery/gallery.component';
 import { InputFile } from '~/app/shared/image-upload/interfaces/input-file';
 import { appConfig, environmentConfig } from '~/environments/environment';
 
 import { ImageService } from '../../framework/images/image.service';
 import { ConfigMenuDialogComponent, ConfigMenuResult } from '../config-menu/config-menu.component';
-
+import { ImagePosition, LoadingImage } from '../gallery/gallery.component';
 
 export interface UploadingImage extends LoadingImage {
   inputFile: InputFile;
@@ -240,7 +239,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       data: {
         albumId: this.viewingAlbum._id,
         albumName: this.viewingAlbum.name,
-        themeEnabled: false
+        rootSettings: false
       }
     });
 
@@ -257,7 +256,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       data: {
         albumId: this.rootAlbum._id,
         albumName: this.rootAlbum.name,
-        themeEnabled: true
+        rootSettings: true
       }
     });
 

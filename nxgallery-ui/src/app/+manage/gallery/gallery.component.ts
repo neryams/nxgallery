@@ -11,13 +11,12 @@ import {
   Renderer2,
   ViewChild
 } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
 import * as Packery from 'packery';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { debounceTime, map, tap } from 'rxjs/operators';
 import { appConfig } from '~/environments/environment';
 
-import { IImageDocument } from './../../../../../shared/interfaces/imageData';
+import { IImageDocument } from '../../../../../shared/interfaces/imageData';
 
 export interface LoadingImage {
   uid: string;
@@ -73,18 +72,14 @@ export class GalleryComponent implements OnInit, AfterViewInit, DoCheck {
   currentImages: Array<GalleryItem>;
   gridInst: any;
 
-  imageSettingsForm = new FormGroup({
-    title: new FormControl(''),
-    caption: new FormControl('')
-  });
-
   currentEditing: {
     originalTop: string;
     galleryItem: GalleryItem;
     itemElement: HTMLElement;
+    imageDocument: IImageDocument;
   };
 
-  constructor(private readonly renderer: Renderer2, private readonly ref: ChangeDetectorRef, element: ElementRef) {
+  constructor(private readonly renderer: Renderer2, private readonly ref: ChangeDetectorRef) {
     this.movedImagesCollection = new Map();
 
     this.imagesChangedSubject
@@ -115,7 +110,6 @@ export class GalleryComponent implements OnInit, AfterViewInit, DoCheck {
 
   ngOnInit(): void {
     this.gridElem.nativeElement.style.setProperty('--gutter', `${appConfig.gallery.gutter}px`);
-    console.log(this.isAlbumRoot);
   }
 
   ngDoCheck(): void {
@@ -194,20 +188,12 @@ export class GalleryComponent implements OnInit, AfterViewInit, DoCheck {
     this.currentEditing = {
       galleryItem,
       originalTop,
-      itemElement: imageElement
+      itemElement: imageElement,
+      imageDocument: this.images.find(inputImage => inputImage._id === galleryItem.id)
     };
-    const currentEditingImage = this.images.find(inputImage => inputImage._id === galleryItem.id);
-    this.imageSettingsForm.get('title').setValue(currentEditingImage.title || '');
-    this.imageSettingsForm.get('caption').setValue(currentEditingImage.info.caption || '');
-
-    this.ref.detectChanges();
   }
 
-  saveImageDetails(updatedGalleryItem: GalleryItem): void {
-    const updatedImage = JSON.parse(JSON.stringify(this.images.find(inputImage => inputImage._id === updatedGalleryItem.id)));
-    updatedImage.title = this.imageSettingsForm.get('title').value;
-    updatedImage.info.caption = this.imageSettingsForm.get('caption').value;
-
+  saveImageDetails(updatedImage: IImageDocument): void {
     this.updatedImage.emit(updatedImage);
     this.closeImageDetails();
   }

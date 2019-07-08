@@ -1,5 +1,6 @@
 <div>
-  <h2>Theme Settings</h2>
+  <h2 *ngIf="rootSettings">Gallery Settings</h2>
+  <h2 *ngIf="!rootSettings">Album Settings</h2>
   <form [formGroup]="gallerySettingsForm">
     <mat-accordion>
       <mat-expansion-panel [expanded]="true">
@@ -13,7 +14,7 @@
           <input matInput placeholder="Gallery Name" formControlName="albumName">
         </mat-form-field>
       </mat-expansion-panel>
-      <mat-expansion-panel *ngIf="themeEnabled">
+      <mat-expansion-panel *ngIf="rootSettings">
         <mat-expansion-panel-header>
           <mat-panel-title>
             Upload Theme File
@@ -32,7 +33,7 @@
         <mat-icon aria-hidden="true" fontSet="fas" fontIcon="fa-times"></mat-icon>
         Cancel
       </button>
-      <button type="submit" (click)="save()" mat-raised-button color="primary">
+      <button type="submit" (click)="saveByAlbum()" mat-raised-button color="primary">
         <mat-icon aria-hidden="true" fontSet="fas" fontIcon="fa-check"></mat-icon>
         Save
       </button>

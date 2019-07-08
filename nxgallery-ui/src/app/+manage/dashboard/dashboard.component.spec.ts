@@ -11,7 +11,6 @@ import { NgrxTestingModule } from '~/app/framework/ngrx/testing';
 import { MOCK_ALBUM } from '~/app/framework/settings/testing/mocks/settings-service.mock';
 import { MockComponent, t, TestingModule } from '~/app/framework/testing';
 import { HeaderComponent } from '~/app/layout/header.component';
-import { GalleryModule } from '~/app/shared/gallery/gallery.module';
 import { InputFileModule } from '~/app/shared/image-upload/input-file.module';
 
 import { DashboardComponent } from './dashboard.component';
@@ -26,7 +25,6 @@ describe('DashboardComponent', () => {
         RouterTestingModule.withRoutes([]),
         NgrxTestingModule,
         InputFileModule,
-        GalleryModule,
         ImageFrameworkTestingModule,
         FormsModule,
         CoreTestingModule,

@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, DoCheck, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { IImageDocument } from './../../../../../shared/interfaces/imageData';
+import { IImageDocument } from '../../../../../shared/interfaces/imageData';
 
 export interface LoadingImage {
   uid: string;
