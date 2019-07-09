@@ -259,7 +259,8 @@ export class ImageDatabase extends BaseDatabase {
       if(!album || !album.toObject()) {
         throw Error(ErrorCodes.albumNotFound.code);
       }
-      if (!album.primaryImage) {
+      // Root album doesn't have a primary image
+      if (album.parent && !album.primaryImage) {
         return this.setImageAsPrimary(album._id, image._id).then(() => image.toJSON() as IImageDocument);
       } else {
         return image.toJSON() as IImageDocument
