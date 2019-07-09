@@ -1,8 +1,9 @@
-<form [formGroup]="imageSettingsForm">
+<form [formGroup]="imageSettingsForm" (submit)="emitSubmit()">
   <mat-form-field>
     <input matInput placeholder="Title" formControlName="title">
   </mat-form-field>
   <mat-form-field>
     <input matInput placeholder="Caption" formControlName="caption">
   </mat-form-field>
+  <button type="submit" class="hidden-button"></button>
 </form>

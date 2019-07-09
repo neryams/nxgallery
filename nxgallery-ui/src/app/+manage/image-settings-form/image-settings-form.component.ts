@@ -33,6 +33,7 @@ export class ImageSettingsFormComponent {
     });
   };
   @Output() readonly changed = new EventEmitter();
+  @Output() readonly submitTriggered = new EventEmitter();
 
   imageSettingsForm = new FormGroup({
     title: new FormControl(''),
@@ -49,5 +50,9 @@ export class ImageSettingsFormComponent {
     this._image.info.caption = this.imageSettingsForm.get('caption').value;
 
     this.changed.emit(this._image);
+  }
+
+  emitSubmit(): void {
+    this.submitTriggered.emit(this._image);
   }
 }

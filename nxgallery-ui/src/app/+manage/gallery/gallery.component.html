@@ -32,7 +32,9 @@
           <mat-card-title>Image Parameters</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <nxg-image-settings-form [image]="this.currentEditing.imageDocument"></nxg-image-settings-form>
+          <nxg-image-settings-form [image]="this.currentEditing.imageDocument"
+            (submitTriggered)="saveImageDetails(this.currentEditing.imageDocument)">
+          </nxg-image-settings-form>
         </mat-card-content>
         <mat-card-actions align="end">
           <button mat-flat-button (click)="closeImageDetails()" type="button">Cancel</button>

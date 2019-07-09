@@ -1,5 +1,5 @@
-import { AfterViewInit, Component, DoCheck, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 import { IImageDocument } from '../../../../../shared/interfaces/imageData';
 
@@ -21,7 +21,8 @@ export interface GalleryItem {
   id: string;
   aspect: number;
   newItem: boolean;
-  progress?: Observable<number>;
+  title: string;
+  progress?: BehaviorSubject<number>;
 }
 
 @Component({
