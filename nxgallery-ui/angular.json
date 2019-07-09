@@ -93,8 +93,8 @@
             "progress": true,
             "fileReplacements": [
               {
-                "replace": "src/app/shared/gallery/gallery.component.ts",
-                "with": "src/app/shared/gallery/gallery.component.server.ts"
+                "replace": "src/app/+manage/gallery/gallery.component.ts",
+                "with": "src/app/+manage/gallery/gallery.component.server.ts"
               }
             ]
           },
@@ -102,8 +102,8 @@
             "production": {
               "fileReplacements": [
                 {
-                  "replace": "src/app/shared/gallery/gallery.component.ts",
-                  "with": "src/app/shared/gallery/gallery.component.server.ts"
+                  "replace": "src/app/+manage/gallery/gallery.component.ts",
+                  "with": "src/app/+manage/gallery/gallery.component.server.ts"
                 },
                 {
                   "replace": "src/environments/environment.ts",
