@@ -80,7 +80,7 @@
     "express": "~4.16.4",
     "hammerjs": "~2.0.8",
     "http-proxy-middleware": "^0.19.1",
-    "lodash": "~4.17.11",
+    "lodash": "~4.17.19",
     "ngx-infinite-scroll": "^7.0.0",
     "ngx-perfect-scrollbar": "~7.1.0",
     "packery": "^2.1.2",
